@@ -1,0 +1,90 @@
+import { describe, it, expect, vi } from "vitest";
+import { readInputs, httpsUrl, segment } from "../src/inputs.js";
+import { Sanitizer, escapeHtml } from "../src/security.js";
+export const raw: Record<string, string> = {
+  "token-endpoint": "https://auth.example.invalid/oauth2/token",
+  "client-id": "FAKE_CLIENT_ID",
+  "client-secret": "FAKE_CLIENT_SECRET",
+  resource: "FAKE_RESOURCE",
+  "subscription-code": "synthetic-subscription",
+  branch: "feature/test",
+  "build-name": "synthetic-build",
+};
+export const inputs = () =>
+  readInputs((n) => raw[n] ?? "", new Sanitizer(() => {}));
+describe("inputs and URL validation", () => {
+  it("reads defaults and masks before validation", () => {
+    const mask = vi.fn();
+    expect(inputs()).toMatchObject({
+      pollIntervalMs: 60000,
+      timeoutMs: 7200000,
+    });
+    expect(() =>
+      readInputs(
+        (n) => (n === "branch" ? "" : (raw[n] ?? "")),
+        new Sanitizer(mask),
+      ),
+    ).toThrow();
+    expect(mask).toHaveBeenCalledTimes(4);
+  });
+  it.each([
+    "http://example.invalid",
+    "https://u:p@example.invalid",
+    "https://example.invalid/#x",
+    "https://example.invalid/?x=1",
+    "https://example.invalid/\n",
+    "not-url",
+    "https://example.invalid/\\x",
+    "x".repeat(2049),
+  ])("rejects unsafe URL %s", (v) => expect(() => httpsUrl(v)).toThrow());
+  it.each(["a/b", "a\\b", "a?b", "a#b", ".", "..", ""])(
+    "rejects path %s",
+    (v) => expect(() => segment(v)).toThrow(),
+  );
+  it("encodes segment", () => expect(segment("a b")).toBe("a%20b"));
+  it.each([
+    ["branch", "x".repeat(301)],
+    ["build-name", ""],
+    ["client-id", "\u0000"],
+    ["poll-interval-seconds", "9"],
+    ["poll-interval-seconds", "601"],
+    ["poll-interval-seconds", "10.5"],
+    ["timeout-minutes", "0"],
+    ["timeout-minutes", "1441"],
+  ])("rejects invalid %s", (k, v) =>
+    expect(() =>
+      readInputs(
+        (n) => (n === k ? v! : (raw[n] ?? "")),
+        new Sanitizer(() => {}),
+      ),
+    ).toThrow(),
+  );
+  it("keeps JSON text exact, includes application, normalizes URL", () =>
+    expect(
+      readInputs(
+        (n) =>
+          ({
+            "application-code": "synthetic-app",
+            branch: "feature/$(echo test)",
+            "api-base-url": "https://api.example.invalid///",
+          })[n] ??
+          raw[n] ??
+          "",
+        new Sanitizer(() => {}),
+      ),
+    ).toMatchObject({
+      branch: "feature/$(echo test)",
+      applicationCode: "synthetic-app",
+      apiBaseUrl: "https://api.example.invalid/",
+    }));
+  it("sanitizes secrets and markup", () => {
+    const s = new Sanitizer(() => {});
+    s.add("FAKE_SECRET");
+    s.add("");
+    expect(
+      s.text("<b>FAKE_SECRET</b> Bearer abc https://example.invalid/\n"),
+    ).not.toMatch(/FAKE_SECRET|abc|<b>|https/);
+    expect(s.contains("FAKE_SECRET")).toBe(true);
+    expect(escapeHtml("<&>\"'")).toBe("&lt;&amp;&gt;&quot;&#39;");
+  });
+});
