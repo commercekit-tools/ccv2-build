@@ -1,0 +1,61 @@
+name: CommerceKit CCv2 Build
+description: Trigger and monitor SAP Commerce Cloud CCv2 builds using current Cloud Portal APIs.
+author: CommerceKit
+branding:
+  icon: package
+  color: blue
+inputs:
+  token-endpoint:
+    description: OAuth token endpoint supplied by the SAP Commerce Cloud technical user.
+    required: true
+  client-id:
+    description: Technical-user OAuth client ID.
+    required: true
+  client-secret:
+    description: Technical-user OAuth client secret.
+    required: true
+  resource:
+    description: Technical-user OAuth resource value supplied by Cloud Portal.
+    required: true
+  subscription-code:
+    description: SAP Commerce Cloud subscription code used in Cloud Portal API paths.
+    required: true
+  branch:
+    description: Application Git branch or tag to build.
+    required: true
+  build-name:
+    description: Name shown for the CCv2 build.
+    required: true
+  application-code:
+    description: Optional SAP Commerce Cloud application code; omitted when blank.
+    required: false
+  api-base-url:
+    description: Cloud Portal Management API base URL.
+    required: false
+    default: https://portalapi.commerce.ondemand.com
+  poll-interval-seconds:
+    description: Seconds between progress polls (integer 10–600).
+    required: false
+    default: "60"
+  timeout-minutes:
+    description: Maximum Action wait in minutes (integer 1–1440); does not cancel the remote build.
+    required: false
+    default: "120"
+outputs:
+  build-code:
+    description: Code returned by successful build creation, or empty before a build is known.
+  build-status:
+    description: Last known SAP build status, or empty before a status is known.
+  build-percentage:
+    description: Last valid API percentage as a decimal string, or empty if unknown.
+  poll-count:
+    description: Number of progress HTTP requests performed, including retries; starts at 0.
+  duration-ms:
+    description: Non-negative Action-observed duration in milliseconds, including authentication.
+  result-json:
+    description: Bounded sanitized result schemaVersion 1 JSON; contains no credentials or raw responses.
+  notification-event:
+    description: Valid CommerceKit NotificationEvent v1 ccv2.build.completed JSON on success or handled failure.
+runs:
+  using: node24
+  main: dist/index.js
