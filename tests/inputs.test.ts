@@ -104,3 +104,12 @@ it("masks each sensitive input immediately before reading the next", () => {
     "client-secret",
   ]);
 });
+it.each([
+  "<<script>script>alert(1)</script>",
+  "<script",
+  ">text<",
+  "<b>safe</b>",
+])("removes all markup delimiters from malformed provider text %s", (value) => {
+  const safe = new Sanitizer(() => {});
+  expect(safe.text(value)).not.toMatch(/[<>]/);
+});

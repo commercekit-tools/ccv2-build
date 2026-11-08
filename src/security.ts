@@ -12,11 +12,10 @@ export class Sanitizer {
     let text = value;
     for (const secret of [...this.secrets].sort((a, b) => b.length - a.length))
       text = text.split(secret).join("[REDACTED]");
-    return text
+    return plainText(text)
       .replace(/https?:\/\/\S+/gi, "[URL]")
       .replace(/Bearer\s+\S+/gi, "[REDACTED]")
       .replace(/eyJ[\w-]+\.[\w-]+\.[\w-]+/g, "[REDACTED]")
-      .replace(/<[^>]*>/g, "")
       .replace(/[\u0000-\u001f\u007f-\u009f]/g, " ")
       .split(/\s+at\s+\S+\s*\(/)[0]!
       .slice(0, max)
@@ -34,3 +33,16 @@ export const escapeHtml = (value: string) =>
         c
       ]!,
   );
+
+// A conservative text filter: discard tag contents, including unclosed tags.
+// Every angle bracket is consumed, so nested/malformed markup cannot reappear.
+function plainText(value: string): string {
+  let inside = false;
+  let output = "";
+  for (const character of value) {
+    if (character === "<") inside = true;
+    else if (character === ">") inside = false;
+    else if (!inside) output += character;
+  }
+  return output;
+}
