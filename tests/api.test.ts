@@ -1,4 +1,4 @@
-import { it, expect, describe } from "vitest";
+import { it, expect, describe, vi } from "vitest";
 import { Http, retryAfter } from "../src/http.js";
 
 import { inputs } from "./fixtures.js";
@@ -263,4 +263,48 @@ it("honors cancellation before network", async () => {
   const http = new Http(h.rt, a.signal);
   await expect(http.once("https://example.invalid", {})).rejects.toThrow();
   expect(h.fetcher).not.toHaveBeenCalled();
+});
+it("production runtime delegates fetch, monotonic clock, and abortable timers", async () => {
+  const { runtime } = await import("../src/http.js");
+  const mocked = vi
+    .spyOn(globalThis, "fetch")
+    .mockResolvedValue(Response.json({}));
+  expect(runtime.now()).toBeGreaterThanOrEqual(0);
+  await runtime.fetch("https://example.invalid");
+  expect(mocked).toHaveBeenCalledOnce();
+  await runtime.sleep(1, new AbortController().signal);
+  mocked.mockRestore();
+});
+it("handles bodyless errors and non-object error JSON", async () => {
+  for (const r of [
+    new Response(null, { status: 403 }),
+    Response.json([], { status: 400 }),
+  ]) {
+    const h = harness([r]);
+    expect((await h.http.once("https://example.invalid", {})).body).toEqual({});
+  }
+});
+it("includes optional application and sanitizes empty error text", async () => {
+  const { BuildApi } = await import("../src/api.js");
+  const h = harness([
+    token,
+    { code: "synthetic.1", subscriptionCode: "synthetic-subscription" },
+    { buildStatus: "FAIL", errorMessage: "<b></b>" },
+  ]);
+  const api = new BuildApi(
+    { ...inputs(), applicationCode: "synthetic-app" },
+    h.http,
+    h.tokens,
+    h.safe,
+  );
+  await api.create();
+  expect(h.fetcher.mock.calls[1]![1].body).toContain("applicationCode");
+  expect(await api.progress("synthetic.1")).not.toHaveProperty("errorMessage");
+});
+it("preserves invalid response error during create without replay", async () => {
+  const h = harness([token, new Response("bad", { status: 201 })]);
+  await expect(h.api.create()).rejects.toMatchObject({
+    code: "INVALID_API_RESPONSE",
+  });
+  expect(h.fetcher).toHaveBeenCalledTimes(2);
 });
