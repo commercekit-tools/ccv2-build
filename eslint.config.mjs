@@ -5,5 +5,8 @@ export default ts.config(
   { ignores: ["dist/**", "coverage/**", "node_modules/**", ".idea/**"] },
   js.configs.recommended,
   ...ts.configs.recommended,
-  { languageOptions: { globals: globals.node } },
+  {
+    languageOptions: { globals: globals.node },
+    rules: { "no-control-regex": "off" },
+  },
 );
