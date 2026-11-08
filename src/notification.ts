@@ -57,9 +57,10 @@ export function event(result: Result, env: NodeJS.ProcessEnv, safe: Sanitizer) {
     "buildStatus",
     "durationMs",
     "retryCount",
-    "error",
   ] as const)
     if (result[key] !== undefined) data[key] = result[key];
+  if (result.error)
+    data.error = { code: result.error.code, message: result.error.message };
   const ctx = context(env, safe);
   const value = {
     schemaVersion: 1,

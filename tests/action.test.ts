@@ -297,3 +297,21 @@ it("preserves percentage when a later successful progress omits it", async () =>
   );
   expect(r.percentage).toBe(42);
 });
+it("keeps HTTP status in result while emitting only documented event error fields", () => {
+  const e = event(
+    {
+      ...initialResult(),
+      error: {
+        code: "BUILD_PROGRESS_FAILED",
+        message: "Synthetic API error.",
+        httpStatus: 403,
+      },
+    },
+    {},
+    new Sanitizer(() => {}),
+  );
+  expect(e.data.error).toEqual({
+    code: "BUILD_PROGRESS_FAILED",
+    message: "Synthetic API error.",
+  });
+});
