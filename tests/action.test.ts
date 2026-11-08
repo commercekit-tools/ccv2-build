@@ -284,3 +284,16 @@ it("includes supplied application and escapes summary text", async () => {
     JSON.stringify(vi.mocked(c.core.summary.addRaw).mock.calls),
   ).not.toContain("<img");
 });
+it("preserves percentage when a later successful progress omits it", async () => {
+  const c = fakeCore();
+  const r = await run(
+    c.core,
+    harness([
+      token,
+      create,
+      { buildStatus: "BUILDING", percentage: 42 },
+      { buildStatus: "SUCCESS" },
+    ]).rt,
+  );
+  expect(r.percentage).toBe(42);
+});

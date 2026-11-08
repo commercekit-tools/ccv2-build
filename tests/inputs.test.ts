@@ -78,3 +78,7 @@ describe("inputs and URL validation", () => {
     expect(escapeHtml("<&>\"'")).toBe("&lt;&amp;&gt;&quot;&#39;");
   });
 });
+it.each(["https://example.invalid/?", "https://example.invalid/#"])(
+  "rejects even empty query or fragment delimiter %s",
+  (v) => expect(() => httpsUrl(v)).toThrow(),
+);

@@ -17,7 +17,7 @@ export function textInput(
 }
 export function httpsUrl(value: string): URL {
   try {
-    if (value.length > 2048 || controls.test(value) || /\s|\\/.test(value))
+    if (value.length > 2048 || controls.test(value) || /[\s\\?#]/.test(value))
       throw Error();
     const u = new URL(value);
     if (

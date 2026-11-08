@@ -308,3 +308,34 @@ it("preserves invalid response error during create without replay", async () => 
   });
   expect(h.fetcher).toHaveBeenCalledTimes(2);
 });
+it("times out a pending request after 30 seconds without exposing transport errors", async () => {
+  vi.useFakeTimers({ toFake: ["setTimeout"] });
+  try {
+    const h = harness([]);
+    const timeout = vi
+      .spyOn(AbortSignal, "timeout")
+      .mockImplementation((ms) => {
+        const a = new AbortController();
+        setTimeout(() => a.abort(), ms);
+        return a.signal;
+      });
+    h.rt.fetch = vi.fn(
+      (_url, init) =>
+        new Promise<Response>((_resolve, reject) =>
+          init!.signal!.addEventListener("abort", () =>
+            reject(Error("FAKE_TRANSPORT_SECRET")),
+          ),
+        ),
+    );
+    const pending = h.http.once("https://example.invalid", {});
+    const assertion = expect(pending).rejects.toMatchObject({
+      code: "REQUEST_FAILED",
+      message: "The API request could not be completed.",
+    });
+    await vi.advanceTimersByTimeAsync(30000);
+    await assertion;
+    timeout.mockRestore();
+  } finally {
+    vi.useRealTimers();
+  }
+});
