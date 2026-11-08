@@ -66,8 +66,12 @@ export function readInputs(
     "client-secret",
     "resource",
   ];
-  const secrets = Object.fromEntries(secretNames.map((n) => [n, get(n)]));
-  for (const value of Object.values(secrets)) safe.add(value);
+  const secrets: Record<string, string> = {};
+  for (const name of secretNames) {
+    const value = get(name);
+    safe.add(value);
+    secrets[name] = value;
+  }
   for (const n of secretNames)
     textInput(secrets[n]!, n, n === "client-secret" ? 8192 : 2048);
   const tokenEndpoint = httpsUrl(secrets["token-endpoint"]!).href;

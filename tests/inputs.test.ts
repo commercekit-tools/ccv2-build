@@ -82,3 +82,25 @@ it.each(["https://example.invalid/?", "https://example.invalid/#"])(
   "rejects even empty query or fragment delimiter %s",
   (v) => expect(() => httpsUrl(v)).toThrow(),
 );
+it("masks each sensitive input immediately before reading the next", () => {
+  const calls: string[] = [];
+  expect(() =>
+    readInputs(
+      (name) => {
+        calls.push(name);
+        if (name === "client-secret") throw Error("read failed");
+        return raw[name] ?? "";
+      },
+      new Sanitizer((value) => {
+        calls.push("masked:" + value);
+      }),
+    ),
+  ).toThrow("read failed");
+  expect(calls).toEqual([
+    "token-endpoint",
+    "masked:" + raw["token-endpoint"],
+    "client-id",
+    "masked:" + raw["client-id"],
+    "client-secret",
+  ]);
+});
