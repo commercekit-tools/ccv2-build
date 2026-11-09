@@ -106,6 +106,6 @@ Create-build POST is **not** automatically retried after timeout, network ambigu
 
 ## Development and Sandbox verification
 
-See [CONTRIBUTING.md](CONTRIBUTING.md), [API contract review](docs/api-contract.md), and [Sandbox verification](docs/sandbox.md). Ordinary CI is entirely mocked for SAP/Sandbox. The manual Sandbox workflow is prepared but has not been run for this implementation. No real SAP credentials or subscriptions are used in development tests.
+See [CONTRIBUTING.md](CONTRIBUTING.md), [API contract review](docs/api-contract.md), and [Sandbox verification](docs/sandbox.md). Ordinary CI is entirely mocked for SAP/Sandbox. All five live Sandbox scenarios passed using the guarded workflow scripts and bundled Action locally before merge; see [validation evidence](docs/build-validation.md). GitHub dispatch was unavailable before the new workflow reached main. No real SAP credentials or subscriptions are used in development tests.
 
 **UNRELEASED.** Follow the complete suite gates in [RELEASING.md](RELEASING.md). Marketplace name availability still requires owner validation in GitHub's release UI.

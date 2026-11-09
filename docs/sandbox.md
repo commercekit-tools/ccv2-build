@@ -2,7 +2,7 @@
 
 `.github/workflows/sandbox-smoke.yml` is manual (`workflow_dispatch`) only and targets the fixed `https://ccv2.sandbox.commercekit.tools` service. No repository secrets are required. Exact confirmation: `RUN-COMMERCEKIT-SANDBOX-BUILD`. Concurrency serializes runs without cancellation; the job has a ten-minute ceiling.
 
-**Prepared and mocked only; not executed live during this task.** Owner approval is required after PR review and local/CI checks pass. Ordinary CI performs no Sandbox mutation or OAuth request.
+**All five live scenarios passed on 2026-11-09 with explicit owner approval.** The guarded prepare, bundled Action, assertion, and cleanup sequence ran locally because GitHub rejected dispatch before this new workflow existed on main. See [validation evidence](build-validation.md). Future live runs still require owner approval; ordinary CI performs no Sandbox mutation or OAuth request.
 
 Each invocation creates one disposable run, masks returned synthetic control/OAuth credentials, publishes step-local cleanup outputs before configuring the scenario, and invokes the local bundled Action. The documented synthetic subscription is `131762872233634f29fdeb7d50983aa4`; application `commerce` is a Sandbox fixture only. Production runtime contains neither default.
 
