@@ -1,3 +1,7 @@
+import {
+  validateTechnicalUserTokenEndpoint,
+  validateManagementApiBaseUrl,
+} from "@commercekit-tools/ccv2-client";
 import { ActionError } from "./errors.js";
 import type { Sanitizer } from "./security.js";
 export const controls = /[\u0000-\u001f\u007f-\u009f]/;
@@ -15,21 +19,13 @@ export function textInput(
     throw new ActionError("INVALID_INPUT", `Invalid ${name} input.`);
   return value;
 }
-export function httpsUrl(value: string): URL {
+export function httpsUrl(value: string, management = false): URL {
   try {
-    if (value.length > 2048 || controls.test(value) || /[\s\\?#]/.test(value))
-      throw Error();
-    const u = new URL(value);
-    if (
-      u.protocol !== "https:" ||
-      !u.hostname ||
-      u.username ||
-      u.password ||
-      u.hash ||
-      u.search
-    )
-      throw Error();
-    return u;
+    return (
+      management
+        ? validateManagementApiBaseUrl
+        : validateTechnicalUserTokenEndpoint
+    )(value);
   } catch {
     throw new ActionError(
       "INVALID_INPUT",
@@ -75,10 +71,10 @@ export function readInputs(
   for (const n of secretNames)
     textInput(secrets[n]!, n, n === "client-secret" ? 8192 : 2048);
   const tokenEndpoint = httpsUrl(secrets["token-endpoint"]!).href;
-  const apiBaseUrl =
-    httpsUrl(
-      get("api-base-url") || "https://portalapi.commerce.ondemand.com",
-    ).href.replace(/\/+$/, "") + "/";
+  const apiBaseUrl = httpsUrl(
+    get("api-base-url") || "https://portalapi.commerce.ondemand.com",
+    true,
+  ).href;
   const subscriptionCode = textInput(
     get("subscription-code"),
     "subscription-code",

@@ -2,8 +2,8 @@ import type * as core from "@actions/core";
 import { readInputs } from "./inputs.js";
 import { Sanitizer, escapeHtml } from "./security.js";
 import { ActionError, waitTimeout } from "./errors.js";
-import { Http, runtime, type Runtime } from "./http.js";
-import { TokenManager } from "./auth.js";
+import { runtime, type Runtime } from "./runtime.js";
+import { BuildTransport } from "./transport.js";
 import { BuildApi } from "./api.js";
 import { initialResult, type Result } from "./result.js";
 import { event } from "./notification.js";
@@ -21,7 +21,7 @@ export async function run(
   const safe = new Sanitizer((v) => core.setSecret(v));
   let result = initialResult();
   let timer: ReturnType<typeof setTimeout> | undefined;
-  let http: Http | undefined;
+  let transport: BuildTransport | undefined;
   let api: BuildApi | undefined;
   let activeSignal: AbortSignal | undefined;
   try {
@@ -48,11 +48,10 @@ export async function run(
       signal.throwIfAborted();
       if (rt.now() >= deadline) throw waitTimeout();
     };
-    http = new Http(rt, signal);
-    const tokens = new TokenManager(input, http, safe);
-    api = new BuildApi(input, http, tokens, safe);
+    transport = new BuildTransport(input, rt, signal, safe);
+    api = new BuildApi(input, transport, safe);
     core.info("Authenticating with the CCv2 technical user.");
-    await tokens.get();
+    await transport.authenticate();
     check();
     core.info("Creating CCv2 build.");
     const build = await api.create();
@@ -120,7 +119,7 @@ export async function run(
     if (timer) clearTimeout(timer);
   }
   result.pollCount = api?.pollCount ?? 0;
-  result.retryCount = http?.retryCount ?? 0;
+  result.retryCount = transport?.retryCount ?? 0;
   result.durationMs = Math.max(0, Math.floor(rt.now() - started));
   // Explicit allowlisted model; sanitize every string before any output or summary.
   result = JSON.parse(

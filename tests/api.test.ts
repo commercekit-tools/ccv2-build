@@ -1,5 +1,4 @@
 import { it, expect, describe, vi } from "vitest";
-import { Http, retryAfter } from "../src/http.js";
 
 import { inputs } from "./fixtures.js";
 import { harness, token } from "./harness.js";
@@ -14,8 +13,8 @@ describe("technical-user authentication", () => {
     expect(url).toBe(inputs().tokenEndpoint);
     expect(init.redirect).toBe("error");
     expect(init.headers).toEqual({
-      "Content-Type": "application/x-www-form-urlencoded",
-      Accept: "application/json",
+      "content-type": "application/x-www-form-urlencoded",
+      accept: "application/json",
     });
     expect(
       Object.fromEntries(new URLSearchParams(init.body as string)),
@@ -238,34 +237,8 @@ describe("build API and retry safety", () => {
     });
   });
 });
-it("parses Retry-After seconds/date and invalid values", () => {
-  expect(retryAfter("3")).toBe(3000);
-  expect(retryAfter("Thu, 01 Jan 1970 00:00:02 GMT", 0)).toBe(2000);
-  expect(retryAfter("bad")).toBe(0);
-  expect(retryAfter(null)).toBe(0);
-});
-it("rejects malformed, oversized, and non-object successful bodies", async () => {
-  for (const body of ["bad", "[]", "null", '"text"', "x".repeat(262145)]) {
-    const h = harness([new Response(body)]);
-    await expect(
-      h.http.once("https://example.invalid", {}),
-    ).rejects.toMatchObject({ code: "INVALID_API_RESPONSE" });
-  }
-});
-it("does not expose non-JSON error response", async () => {
-  const h = harness([new Response("secret", { status: 400 })]);
-  expect((await h.http.once("https://example.invalid", {})).body).toEqual({});
-});
-it("honors cancellation before network", async () => {
-  const h = harness([]);
-  const a = new AbortController();
-  a.abort();
-  const http = new Http(h.rt, a.signal);
-  await expect(http.once("https://example.invalid", {})).rejects.toThrow();
-  expect(h.fetcher).not.toHaveBeenCalled();
-});
 it("production runtime delegates fetch, monotonic clock, and abortable timers", async () => {
-  const { runtime } = await import("../src/http.js");
+  const { runtime } = await import("../src/runtime.js");
   const mocked = vi
     .spyOn(globalThis, "fetch")
     .mockResolvedValue(Response.json({}));
@@ -274,15 +247,6 @@ it("production runtime delegates fetch, monotonic clock, and abortable timers", 
   expect(mocked).toHaveBeenCalledOnce();
   await runtime.sleep(1, new AbortController().signal);
   mocked.mockRestore();
-});
-it("handles bodyless errors and non-object error JSON", async () => {
-  for (const r of [
-    new Response(null, { status: 403 }),
-    Response.json([], { status: 400 }),
-  ]) {
-    const h = harness([r]);
-    expect((await h.http.once("https://example.invalid", {})).body).toEqual({});
-  }
 });
 it("includes optional application and sanitizes empty error text", async () => {
   const { BuildApi } = await import("../src/api.js");
@@ -294,7 +258,6 @@ it("includes optional application and sanitizes empty error text", async () => {
   const api = new BuildApi(
     { ...inputs(), applicationCode: "synthetic-app" },
     h.http,
-    h.tokens,
     h.safe,
   );
   await api.create();
@@ -311,14 +274,8 @@ it("preserves invalid response error during create without replay", async () => 
 it("times out a pending request after 30 seconds without exposing transport errors", async () => {
   vi.useFakeTimers({ toFake: ["setTimeout"] });
   try {
-    const h = harness([]);
-    const timeout = vi
-      .spyOn(AbortSignal, "timeout")
-      .mockImplementation((ms) => {
-        const a = new AbortController();
-        setTimeout(() => a.abort(), ms);
-        return a.signal;
-      });
+    const h = harness([token]);
+    await h.tokens.get();
     h.rt.fetch = vi.fn(
       (_url, init) =>
         new Promise<Response>((_resolve, reject) =>
@@ -327,15 +284,108 @@ it("times out a pending request after 30 seconds without exposing transport erro
           ),
         ),
     );
-    const pending = h.http.once("https://example.invalid", {});
+    const pending = h.api.create();
     const assertion = expect(pending).rejects.toMatchObject({
-      code: "REQUEST_FAILED",
-      message: "The API request could not be completed.",
+      code: "CREATE_BUILD_AMBIGUOUS",
+      message:
+        "Build creation could have succeeded. Check Cloud Portal before trying again.",
     });
     await vi.advanceTimersByTimeAsync(30000);
     await assertion;
-    timeout.mockRestore();
   } finally {
     vi.useRealTimers();
   }
+});
+it("selects explicit mutation and safe-read policies", async () => {
+  const h = harness([
+    token,
+    { code: "synthetic.1" },
+    { buildStatus: "SUCCESS" },
+  ]);
+  const request = vi.spyOn(h.http.client, "request");
+  await h.api.create();
+  await h.api.progress("synthetic.1");
+  expect(request.mock.calls[0]![1]).toMatchObject({
+    policy: "unsafe-mutation",
+    refreshOn401: true,
+    timeoutMs: 30000,
+  });
+  expect(request.mock.calls[1]![1]).toMatchObject({
+    policy: "safe-read",
+    refreshOn401: true,
+  });
+});
+it.each(["create", "progress"] as const)(
+  "rejects array, empty and binary %s bodies without retry",
+  async (operation) => {
+    for (const body of [
+      Response.json([], { status: operation === "create" ? 201 : 200 }),
+      new Response(null, { status: operation === "create" ? 201 : 200 }),
+      new Response("synthetic binary", {
+        status: operation === "create" ? 201 : 200,
+        headers: { "content-type": "application/octet-stream" },
+      }),
+    ]) {
+      const h = harness([token, body]);
+      await expect(
+        operation === "create" ? h.api.create() : h.api.progress("synthetic.1"),
+      ).rejects.toMatchObject({ code: "INVALID_API_RESPONSE" });
+      expect(h.fetcher).toHaveBeenCalledTimes(2);
+    }
+  },
+);
+it("preserves authentication classification when a 401 refresh fails", async () => {
+  const h = harness([
+    token,
+    Response.json({}, { status: 401 }),
+    Response.json({}, { status: 403 }),
+  ]);
+  await expect(h.api.create()).rejects.toMatchObject({
+    code: "AUTHENTICATION_FAILED",
+    httpStatus: 403,
+  });
+  expect(h.fetcher).toHaveBeenCalledTimes(3);
+  expect(h.http.retryCount).toBe(1); // Preserve authorization refresh accounting even if refresh fails.
+});
+it("counts token retries separately from progress attempts and honors HTTP-date Retry-After", async () => {
+  vi.spyOn(Date, "now").mockReturnValue(Date.parse("2026-01-01T00:00:00Z"));
+  try {
+    const h = harness([
+      Response.json({}, { status: 503 }),
+      token,
+      Response.json(
+        {},
+        {
+          status: 429,
+          headers: { "retry-after": "Thu, 01 Jan 2026 00:00:04 GMT" },
+        },
+      ),
+      { buildStatus: "SUCCESS" },
+    ]);
+    await h.api.progress("synthetic.1");
+    expect(h.http.retryCount).toBe(2);
+    expect(h.api.pollCount).toBe(2);
+    expect(h.rt.sleep).toHaveBeenLastCalledWith(3000, h.http.signal);
+  } finally {
+    vi.restoreAllMocks();
+  }
+});
+it("preserves exhausted progress HTTP status and rejects oversized success", async () => {
+  const h = harness([
+    token,
+    ...Array.from({ length: 3 }, () => Response.json({}, { status: 503 })),
+  ]);
+  await expect(h.api.progress("synthetic.1")).rejects.toMatchObject({
+    code: "BUILD_PROGRESS_FAILED",
+    httpStatus: 503,
+  });
+  expect(h.api.pollCount).toBe(3);
+  const large = harness([
+    token,
+    new Response("x".repeat(262145), { status: 201 }),
+  ]);
+  await expect(large.api.create()).rejects.toMatchObject({
+    code: "INVALID_API_RESPONSE",
+  });
+  expect(large.fetcher).toHaveBeenCalledTimes(2);
 });
