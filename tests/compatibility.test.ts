@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { it, expect, vi } from "vitest";
 import { run, type Core } from "../src/action.js";
 import { harness, token } from "./harness.js";
@@ -128,7 +129,7 @@ it("preserves complete public outputs and validates every completion path", asyn
       summaries,
     });
   }
-  await expect(JSON.stringify(fixtures, null, 2) + "\n").toMatchFileSnapshot(
-    "fixtures/build-compatibility.json",
+  expect(JSON.parse(JSON.stringify(fixtures))).toEqual(
+    JSON.parse(readFileSync("tests/fixtures/build-compatibility.json", "utf8")),
   );
 });
