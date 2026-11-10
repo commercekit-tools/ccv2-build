@@ -1,6 +1,7 @@
 import {
   validateTechnicalUserTokenEndpoint,
   validateManagementApiBaseUrl,
+  type TechnicalUserCredentials,
 } from "@commercekit-tools/ccv2-client";
 import { ActionError } from "./errors.js";
 import type { Sanitizer } from "./security.js";
@@ -39,11 +40,7 @@ export function segment(value: string): string {
     throw new ActionError("INVALID_INPUT", "Invalid path identifier.");
   return encodeURIComponent(value);
 }
-export interface Inputs {
-  tokenEndpoint: string;
-  clientId: string;
-  clientSecret: string;
-  resource: string;
+export interface Inputs extends TechnicalUserCredentials {
   subscriptionCode: string;
   branch: string;
   buildName: string;

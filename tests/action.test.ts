@@ -359,3 +359,33 @@ it("masks shared token-manager credentials and encoded values before public outp
     expect(sinks).not.toContain(encodeURIComponent(value));
   }
 });
+
+it("uses the shared factory allowlist and source without exposing Build-only result fields", () => {
+  const result = {
+    ...initialResult(),
+    buildCode: "synthetic.1",
+    percentage: 35,
+    numberOfTasks: 5,
+    startedTaskCount: 2,
+    pollCount: 3,
+    timedOut: true,
+    error: {
+      code: "BUILD_WAIT_TIMEOUT",
+      message: "Synthetic timeout.",
+      httpStatus: 503,
+    },
+  };
+  const value = event(result, {}, new Sanitizer(() => {}));
+  expect(value.source).toEqual({
+    product: "commercekit",
+    component: "ccv2-build",
+  });
+  expect(value.data).toEqual({
+    buildCode: "synthetic.1",
+    durationMs: 0,
+    retryCount: 0,
+    error: { code: "BUILD_WAIT_TIMEOUT", message: "Synthetic timeout." },
+  });
+  expect(result.error.httpStatus).toBe(503);
+  expect(result.percentage).toBe(35);
+});

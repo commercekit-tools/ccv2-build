@@ -1,7 +1,11 @@
+import type {
+  CompletedStatus,
+  SafeNotificationError,
+} from "@commercekit-tools/notification-contract";
 import type { BuildStatus } from "./api.js";
 export interface Result {
   schemaVersion: 1;
-  outcome: "success" | "failure" | "cancelled" | "internal-error";
+  outcome: CompletedStatus;
   subscriptionCode?: string;
   applicationCode?: string;
   buildCode?: string;
@@ -15,7 +19,7 @@ export interface Result {
   durationMs: number;
   timedOut: boolean;
   retryCount: number;
-  error?: { code: string; message: string; httpStatus?: number };
+  error?: Required<SafeNotificationError> & { httpStatus?: number };
 }
 export const initialResult = (): Result => ({
   schemaVersion: 1,

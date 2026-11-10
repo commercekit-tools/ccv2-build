@@ -1,7 +1,6 @@
 import {
   createBuildEvent,
   extractSafeGitHubContext,
-  type BuildEventData,
 } from "@commercekit-tools/notification-contract";
 import type { Result } from "./result.js";
 import { controls } from "./inputs.js";
@@ -20,27 +19,11 @@ export function context(env: NodeJS.ProcessEnv, safe: Sanitizer) {
   return ctx;
 }
 export function event(result: Result, env: NodeJS.ProcessEnv, safe: Sanitizer) {
-  const data: BuildEventData = {
-    durationMs: result.durationMs,
-    retryCount: result.retryCount,
-    ...(result.error
-      ? { error: { code: result.error.code, message: result.error.message } }
-      : {}),
-  };
-  for (const key of [
-    "subscriptionCode",
-    "applicationCode",
-    "buildCode",
-    "buildName",
-    "branch",
-    "buildStatus",
-  ] as const)
-    if (result[key] !== undefined) data[key] = result[key];
   const ctx = context(env, safe);
   return createBuildEvent({
     status: result.outcome,
-    source: { product: "commercekit", component: "ccv2-build" },
-    data,
+    // The shared factory selects only schema-approved build/error fields and sets the Build source.
+    data: result,
     context: ctx,
     ...(ctx.runUrl
       ? { links: [{ label: "View workflow", url: ctx.runUrl }] }

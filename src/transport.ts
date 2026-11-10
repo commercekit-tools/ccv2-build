@@ -33,8 +33,7 @@ export class BuildTransport {
     const common = {
       ...rt,
       now: () => wallStart + rt.now() - start,
-      sleep: (ms: number, signal?: AbortSignal) =>
-        rt.sleep(ms, signal ?? this.signal),
+      maskSecret: (value: string) => this.safe.add(value),
     };
     const credentials = {
       tokenEndpoint: input.tokenEndpoint,
@@ -45,7 +44,6 @@ export class BuildTransport {
     this.tokens = new TechnicalUserTokenManager(credentials, {
       runtime: {
         ...common,
-        maskSecret: (value) => this.safe.add(value),
         fetch: (...args) => {
           if (this.tokenAttempts++ > 0) this.retryCount++;
           return rt.fetch(...args);
@@ -75,7 +73,6 @@ export class BuildTransport {
       secrets: Object.values(credentials),
       runtime: {
         ...common,
-        maskSecret: (value) => this.safe.add(value),
         fetch: (...args) => {
           if (this.managementAttempts++ > 0) this.retryCount++;
           if (this.operation === "progress") this.pollCount++;

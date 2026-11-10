@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { validateNotificationEvent } from "@commercekit-tools/notification-contract";
+import { parseNotificationEventJson } from "@commercekit-tools/notification-contract";
 import * as core from "@actions/core";
 import { credentials, request, scenarios } from "./common.mjs";
 try {
@@ -20,8 +20,7 @@ try {
     assert(!raw.includes(value) && !rawEvent.includes(value));
   }
   const result = JSON.parse(raw);
-  const event = JSON.parse(rawEvent);
-  validateNotificationEvent(event);
+  const event = parseNotificationEventJson(rawEvent, { maxBytes: 16384 });
   assert.equal(result.schemaVersion, 1);
   assert.equal(event.eventType, "ccv2.build.completed");
   assert(Number.isSafeInteger(result.durationMs) && result.durationMs >= 0);

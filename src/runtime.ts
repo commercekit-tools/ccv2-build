@@ -1,10 +1,11 @@
-import { defaultRuntime } from "@commercekit-tools/ccv2-client";
-export interface Runtime {
-  fetch: typeof fetch;
-  now: () => number;
-  sleep: (ms: number, signal: AbortSignal) => Promise<void>;
-  random: () => number;
-}
+import {
+  defaultRuntime,
+  type RuntimeDependencies,
+} from "@commercekit-tools/ccv2-client";
+export type Runtime = Pick<
+  RuntimeDependencies,
+  "fetch" | "now" | "sleep" | "random"
+>;
 export const runtime: Runtime = {
   ...defaultRuntime,
   now: () => performance.now(),
