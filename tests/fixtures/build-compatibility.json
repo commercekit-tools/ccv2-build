@@ -1,0 +1,1242 @@
+[
+  {
+    "name": "SUCCESS",
+    "outputs": {
+      "build-code": "synthetic.1",
+      "build-status": "SUCCESS",
+      "build-percentage": "95",
+      "poll-count": "1",
+      "duration-ms": "0",
+      "result-json": {
+        "schemaVersion": 1,
+        "outcome": "success",
+        "pollCount": 1,
+        "durationMs": 0,
+        "timedOut": false,
+        "retryCount": 0,
+        "subscriptionCode": "synthetic-subscription",
+        "buildName": "synthetic-build",
+        "branch": "feature/test",
+        "buildCode": "synthetic.1",
+        "buildStatus": "SUCCESS",
+        "percentage": 95,
+        "numberOfTasks": 2,
+        "startedTaskCount": 2
+      },
+      "notification-event": {
+        "schemaVersion": 1,
+        "eventId": "ckevt_synthetic",
+        "eventType": "ccv2.build.completed",
+        "status": "success",
+        "occurredAt": "2026-01-01T00:00:00.000Z",
+        "source": {
+          "product": "commercekit",
+          "component": "ccv2-build"
+        },
+        "data": {
+          "subscriptionCode": "synthetic-subscription",
+          "buildCode": "synthetic.1",
+          "buildName": "synthetic-build",
+          "branch": "feature/test",
+          "buildStatus": "SUCCESS",
+          "durationMs": 0,
+          "retryCount": 0
+        },
+        "context": {
+          "repository": "synthetic/example",
+          "ref": "refs/heads/main",
+          "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "actor": "synthetic",
+          "workflow": "Build",
+          "job": "build",
+          "runId": "123",
+          "runAttempt": 1,
+          "runUrl": "https://github.com/synthetic/example/actions/runs/123"
+        },
+        "links": [
+          {
+            "label": "View workflow",
+            "url": "https://github.com/synthetic/example/actions/runs/123"
+          }
+        ]
+      }
+    },
+    "calls": [
+      "build-code",
+      "build-status",
+      "build-percentage",
+      "poll-count",
+      "duration-ms",
+      "result-json",
+      "notification-event"
+    ],
+    "summaries": [
+      "<h2>CCv2 Build</h2><table><tr><td>Status</td><td>SUCCESS</td></tr><tr><td>Build code</td><td>synthetic.1</td></tr><tr><td>Build name</td><td>synthetic-build</td></tr><tr><td>Branch</td><td>feature/test</td></tr><tr><td>Percentage</td><td>95</td></tr><tr><td>Poll count</td><td>1</td></tr><tr><td>Duration (ms)</td><td>0</td></tr></table>"
+    ]
+  },
+  {
+    "name": "FAIL",
+    "outputs": {
+      "build-code": "synthetic.1",
+      "build-status": "FAIL",
+      "build-percentage": "95",
+      "poll-count": "1",
+      "duration-ms": "0",
+      "result-json": {
+        "schemaVersion": 1,
+        "outcome": "failure",
+        "pollCount": 1,
+        "durationMs": 0,
+        "timedOut": false,
+        "retryCount": 0,
+        "subscriptionCode": "synthetic-subscription",
+        "buildName": "synthetic-build",
+        "branch": "feature/test",
+        "buildCode": "synthetic.1",
+        "buildStatus": "FAIL",
+        "percentage": 95,
+        "numberOfTasks": 2,
+        "startedTaskCount": 2,
+        "error": {
+          "code": "BUILD_FAILED",
+          "message": "CCv2 build finished with status FAIL."
+        }
+      },
+      "notification-event": {
+        "schemaVersion": 1,
+        "eventId": "ckevt_synthetic",
+        "eventType": "ccv2.build.completed",
+        "status": "failure",
+        "occurredAt": "2026-01-01T00:00:00.000Z",
+        "source": {
+          "product": "commercekit",
+          "component": "ccv2-build"
+        },
+        "data": {
+          "subscriptionCode": "synthetic-subscription",
+          "buildCode": "synthetic.1",
+          "buildName": "synthetic-build",
+          "branch": "feature/test",
+          "buildStatus": "FAIL",
+          "durationMs": 0,
+          "retryCount": 0,
+          "error": {
+            "code": "BUILD_FAILED",
+            "message": "CCv2 build finished with status FAIL."
+          }
+        },
+        "context": {
+          "repository": "synthetic/example",
+          "ref": "refs/heads/main",
+          "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "actor": "synthetic",
+          "workflow": "Build",
+          "job": "build",
+          "runId": "123",
+          "runAttempt": 1,
+          "runUrl": "https://github.com/synthetic/example/actions/runs/123"
+        },
+        "links": [
+          {
+            "label": "View workflow",
+            "url": "https://github.com/synthetic/example/actions/runs/123"
+          }
+        ]
+      }
+    },
+    "calls": [
+      "build-code",
+      "build-status",
+      "build-percentage",
+      "poll-count",
+      "duration-ms",
+      "result-json",
+      "notification-event",
+      "failed"
+    ],
+    "summaries": [
+      "<h2>CCv2 Build</h2><table><tr><td>Status</td><td>FAIL</td></tr><tr><td>Build code</td><td>synthetic.1</td></tr><tr><td>Build name</td><td>synthetic-build</td></tr><tr><td>Branch</td><td>feature/test</td></tr><tr><td>Percentage</td><td>95</td></tr><tr><td>Poll count</td><td>1</td></tr><tr><td>Duration (ms)</td><td>0</td></tr><tr><td>Error</td><td>CCv2 build finished with status FAIL.</td></tr></table>"
+    ]
+  },
+  {
+    "name": "DELETED",
+    "outputs": {
+      "build-code": "synthetic.1",
+      "build-status": "DELETED",
+      "build-percentage": "95",
+      "poll-count": "1",
+      "duration-ms": "0",
+      "result-json": {
+        "schemaVersion": 1,
+        "outcome": "cancelled",
+        "pollCount": 1,
+        "durationMs": 0,
+        "timedOut": false,
+        "retryCount": 0,
+        "subscriptionCode": "synthetic-subscription",
+        "buildName": "synthetic-build",
+        "branch": "feature/test",
+        "buildCode": "synthetic.1",
+        "buildStatus": "DELETED",
+        "percentage": 95,
+        "numberOfTasks": 2,
+        "startedTaskCount": 2,
+        "error": {
+          "code": "BUILD_DELETED",
+          "message": "CCv2 build finished with status DELETED."
+        }
+      },
+      "notification-event": {
+        "schemaVersion": 1,
+        "eventId": "ckevt_synthetic",
+        "eventType": "ccv2.build.completed",
+        "status": "cancelled",
+        "occurredAt": "2026-01-01T00:00:00.000Z",
+        "source": {
+          "product": "commercekit",
+          "component": "ccv2-build"
+        },
+        "data": {
+          "subscriptionCode": "synthetic-subscription",
+          "buildCode": "synthetic.1",
+          "buildName": "synthetic-build",
+          "branch": "feature/test",
+          "buildStatus": "DELETED",
+          "durationMs": 0,
+          "retryCount": 0,
+          "error": {
+            "code": "BUILD_DELETED",
+            "message": "CCv2 build finished with status DELETED."
+          }
+        },
+        "context": {
+          "repository": "synthetic/example",
+          "ref": "refs/heads/main",
+          "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "actor": "synthetic",
+          "workflow": "Build",
+          "job": "build",
+          "runId": "123",
+          "runAttempt": 1,
+          "runUrl": "https://github.com/synthetic/example/actions/runs/123"
+        },
+        "links": [
+          {
+            "label": "View workflow",
+            "url": "https://github.com/synthetic/example/actions/runs/123"
+          }
+        ]
+      }
+    },
+    "calls": [
+      "build-code",
+      "build-status",
+      "build-percentage",
+      "poll-count",
+      "duration-ms",
+      "result-json",
+      "notification-event",
+      "failed"
+    ],
+    "summaries": [
+      "<h2>CCv2 Build</h2><table><tr><td>Status</td><td>DELETED</td></tr><tr><td>Build code</td><td>synthetic.1</td></tr><tr><td>Build name</td><td>synthetic-build</td></tr><tr><td>Branch</td><td>feature/test</td></tr><tr><td>Percentage</td><td>95</td></tr><tr><td>Poll count</td><td>1</td></tr><tr><td>Duration (ms)</td><td>0</td></tr><tr><td>Error</td><td>CCv2 build finished with status DELETED.</td></tr></table>"
+    ]
+  },
+  {
+    "name": "UNKNOWN",
+    "outputs": {
+      "build-code": "synthetic.1",
+      "build-status": "UNKNOWN",
+      "build-percentage": "95",
+      "poll-count": "1",
+      "duration-ms": "0",
+      "result-json": {
+        "schemaVersion": 1,
+        "outcome": "internal-error",
+        "pollCount": 1,
+        "durationMs": 0,
+        "timedOut": false,
+        "retryCount": 0,
+        "subscriptionCode": "synthetic-subscription",
+        "buildName": "synthetic-build",
+        "branch": "feature/test",
+        "buildCode": "synthetic.1",
+        "buildStatus": "UNKNOWN",
+        "percentage": 95,
+        "numberOfTasks": 2,
+        "startedTaskCount": 2,
+        "error": {
+          "code": "BUILD_UNKNOWN_STATUS",
+          "message": "CCv2 build finished with status UNKNOWN."
+        }
+      },
+      "notification-event": {
+        "schemaVersion": 1,
+        "eventId": "ckevt_synthetic",
+        "eventType": "ccv2.build.completed",
+        "status": "internal-error",
+        "occurredAt": "2026-01-01T00:00:00.000Z",
+        "source": {
+          "product": "commercekit",
+          "component": "ccv2-build"
+        },
+        "data": {
+          "subscriptionCode": "synthetic-subscription",
+          "buildCode": "synthetic.1",
+          "buildName": "synthetic-build",
+          "branch": "feature/test",
+          "buildStatus": "UNKNOWN",
+          "durationMs": 0,
+          "retryCount": 0,
+          "error": {
+            "code": "BUILD_UNKNOWN_STATUS",
+            "message": "CCv2 build finished with status UNKNOWN."
+          }
+        },
+        "context": {
+          "repository": "synthetic/example",
+          "ref": "refs/heads/main",
+          "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "actor": "synthetic",
+          "workflow": "Build",
+          "job": "build",
+          "runId": "123",
+          "runAttempt": 1,
+          "runUrl": "https://github.com/synthetic/example/actions/runs/123"
+        },
+        "links": [
+          {
+            "label": "View workflow",
+            "url": "https://github.com/synthetic/example/actions/runs/123"
+          }
+        ]
+      }
+    },
+    "calls": [
+      "build-code",
+      "build-status",
+      "build-percentage",
+      "poll-count",
+      "duration-ms",
+      "result-json",
+      "notification-event",
+      "failed"
+    ],
+    "summaries": [
+      "<h2>CCv2 Build</h2><table><tr><td>Status</td><td>UNKNOWN</td></tr><tr><td>Build code</td><td>synthetic.1</td></tr><tr><td>Build name</td><td>synthetic-build</td></tr><tr><td>Branch</td><td>feature/test</td></tr><tr><td>Percentage</td><td>95</td></tr><tr><td>Poll count</td><td>1</td></tr><tr><td>Duration (ms)</td><td>0</td></tr><tr><td>Error</td><td>CCv2 build finished with status UNKNOWN.</td></tr></table>"
+    ]
+  },
+  {
+    "name": "auth",
+    "outputs": {
+      "build-code": "",
+      "build-status": "",
+      "build-percentage": "",
+      "poll-count": "0",
+      "duration-ms": "0",
+      "result-json": {
+        "schemaVersion": 1,
+        "outcome": "internal-error",
+        "pollCount": 0,
+        "durationMs": 0,
+        "timedOut": false,
+        "retryCount": 0,
+        "subscriptionCode": "synthetic-subscription",
+        "buildName": "synthetic-build",
+        "branch": "feature/test",
+        "error": {
+          "code": "AUTHENTICATION_FAILED",
+          "message": "Technical-user authentication failed.",
+          "httpStatus": 401
+        }
+      },
+      "notification-event": {
+        "schemaVersion": 1,
+        "eventId": "ckevt_synthetic",
+        "eventType": "ccv2.build.completed",
+        "status": "internal-error",
+        "occurredAt": "2026-01-01T00:00:00.000Z",
+        "source": {
+          "product": "commercekit",
+          "component": "ccv2-build"
+        },
+        "data": {
+          "subscriptionCode": "synthetic-subscription",
+          "buildName": "synthetic-build",
+          "branch": "feature/test",
+          "durationMs": 0,
+          "retryCount": 0,
+          "error": {
+            "code": "AUTHENTICATION_FAILED",
+            "message": "Technical-user authentication failed."
+          }
+        },
+        "context": {
+          "repository": "synthetic/example",
+          "ref": "refs/heads/main",
+          "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "actor": "synthetic",
+          "workflow": "Build",
+          "job": "build",
+          "runId": "123",
+          "runAttempt": 1,
+          "runUrl": "https://github.com/synthetic/example/actions/runs/123"
+        },
+        "links": [
+          {
+            "label": "View workflow",
+            "url": "https://github.com/synthetic/example/actions/runs/123"
+          }
+        ]
+      }
+    },
+    "calls": [
+      "build-code",
+      "build-status",
+      "build-percentage",
+      "poll-count",
+      "duration-ms",
+      "result-json",
+      "notification-event",
+      "failed"
+    ],
+    "summaries": [
+      "<h2>CCv2 Build</h2><table><tr><td>Status</td><td>internal-error</td></tr><tr><td>Build name</td><td>synthetic-build</td></tr><tr><td>Branch</td><td>feature/test</td></tr><tr><td>Poll count</td><td>0</td></tr><tr><td>Duration (ms)</td><td>0</td></tr><tr><td>Error</td><td>Technical-user authentication failed.</td></tr></table>"
+    ]
+  },
+  {
+    "name": "invalid-token",
+    "outputs": {
+      "build-code": "",
+      "build-status": "",
+      "build-percentage": "",
+      "poll-count": "0",
+      "duration-ms": "0",
+      "result-json": {
+        "schemaVersion": 1,
+        "outcome": "internal-error",
+        "pollCount": 0,
+        "durationMs": 0,
+        "timedOut": false,
+        "retryCount": 0,
+        "subscriptionCode": "synthetic-subscription",
+        "buildName": "synthetic-build",
+        "branch": "feature/test",
+        "error": {
+          "code": "INVALID_API_RESPONSE",
+          "message": "The API returned an invalid response."
+        }
+      },
+      "notification-event": {
+        "schemaVersion": 1,
+        "eventId": "ckevt_synthetic",
+        "eventType": "ccv2.build.completed",
+        "status": "internal-error",
+        "occurredAt": "2026-01-01T00:00:00.000Z",
+        "source": {
+          "product": "commercekit",
+          "component": "ccv2-build"
+        },
+        "data": {
+          "subscriptionCode": "synthetic-subscription",
+          "buildName": "synthetic-build",
+          "branch": "feature/test",
+          "durationMs": 0,
+          "retryCount": 0,
+          "error": {
+            "code": "INVALID_API_RESPONSE",
+            "message": "The API returned an invalid response."
+          }
+        },
+        "context": {
+          "repository": "synthetic/example",
+          "ref": "refs/heads/main",
+          "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "actor": "synthetic",
+          "workflow": "Build",
+          "job": "build",
+          "runId": "123",
+          "runAttempt": 1,
+          "runUrl": "https://github.com/synthetic/example/actions/runs/123"
+        },
+        "links": [
+          {
+            "label": "View workflow",
+            "url": "https://github.com/synthetic/example/actions/runs/123"
+          }
+        ]
+      }
+    },
+    "calls": [
+      "build-code",
+      "build-status",
+      "build-percentage",
+      "poll-count",
+      "duration-ms",
+      "result-json",
+      "notification-event",
+      "failed"
+    ],
+    "summaries": [
+      "<h2>CCv2 Build</h2><table><tr><td>Status</td><td>internal-error</td></tr><tr><td>Build name</td><td>synthetic-build</td></tr><tr><td>Branch</td><td>feature/test</td></tr><tr><td>Poll count</td><td>0</td></tr><tr><td>Duration (ms)</td><td>0</td></tr><tr><td>Error</td><td>The API returned an invalid response.</td></tr></table>"
+    ]
+  },
+  {
+    "name": "create",
+    "outputs": {
+      "build-code": "",
+      "build-status": "",
+      "build-percentage": "",
+      "poll-count": "0",
+      "duration-ms": "0",
+      "result-json": {
+        "schemaVersion": 1,
+        "outcome": "internal-error",
+        "pollCount": 0,
+        "durationMs": 0,
+        "timedOut": false,
+        "retryCount": 0,
+        "subscriptionCode": "synthetic-subscription",
+        "buildName": "synthetic-build",
+        "branch": "feature/test",
+        "error": {
+          "code": "CREATE_BUILD_FAILED",
+          "message": "CCv2 build creation failed (HTTP 400).",
+          "httpStatus": 400
+        }
+      },
+      "notification-event": {
+        "schemaVersion": 1,
+        "eventId": "ckevt_synthetic",
+        "eventType": "ccv2.build.completed",
+        "status": "internal-error",
+        "occurredAt": "2026-01-01T00:00:00.000Z",
+        "source": {
+          "product": "commercekit",
+          "component": "ccv2-build"
+        },
+        "data": {
+          "subscriptionCode": "synthetic-subscription",
+          "buildName": "synthetic-build",
+          "branch": "feature/test",
+          "durationMs": 0,
+          "retryCount": 0,
+          "error": {
+            "code": "CREATE_BUILD_FAILED",
+            "message": "CCv2 build creation failed (HTTP 400)."
+          }
+        },
+        "context": {
+          "repository": "synthetic/example",
+          "ref": "refs/heads/main",
+          "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "actor": "synthetic",
+          "workflow": "Build",
+          "job": "build",
+          "runId": "123",
+          "runAttempt": 1,
+          "runUrl": "https://github.com/synthetic/example/actions/runs/123"
+        },
+        "links": [
+          {
+            "label": "View workflow",
+            "url": "https://github.com/synthetic/example/actions/runs/123"
+          }
+        ]
+      }
+    },
+    "calls": [
+      "build-code",
+      "build-status",
+      "build-percentage",
+      "poll-count",
+      "duration-ms",
+      "result-json",
+      "notification-event",
+      "failed"
+    ],
+    "summaries": [
+      "<h2>CCv2 Build</h2><table><tr><td>Status</td><td>internal-error</td></tr><tr><td>Build name</td><td>synthetic-build</td></tr><tr><td>Branch</td><td>feature/test</td></tr><tr><td>Poll count</td><td>0</td></tr><tr><td>Duration (ms)</td><td>0</td></tr><tr><td>Error</td><td>CCv2 build creation failed (HTTP 400).</td></tr></table>"
+    ]
+  },
+  {
+    "name": "ambiguous",
+    "outputs": {
+      "build-code": "",
+      "build-status": "",
+      "build-percentage": "",
+      "poll-count": "0",
+      "duration-ms": "0",
+      "result-json": {
+        "schemaVersion": 1,
+        "outcome": "internal-error",
+        "pollCount": 0,
+        "durationMs": 0,
+        "timedOut": false,
+        "retryCount": 0,
+        "subscriptionCode": "synthetic-subscription",
+        "buildName": "synthetic-build",
+        "branch": "feature/test",
+        "error": {
+          "code": "CREATE_BUILD_AMBIGUOUS",
+          "message": "Build creation could have succeeded. Check Cloud Portal before trying again."
+        }
+      },
+      "notification-event": {
+        "schemaVersion": 1,
+        "eventId": "ckevt_synthetic",
+        "eventType": "ccv2.build.completed",
+        "status": "internal-error",
+        "occurredAt": "2026-01-01T00:00:00.000Z",
+        "source": {
+          "product": "commercekit",
+          "component": "ccv2-build"
+        },
+        "data": {
+          "subscriptionCode": "synthetic-subscription",
+          "buildName": "synthetic-build",
+          "branch": "feature/test",
+          "durationMs": 0,
+          "retryCount": 0,
+          "error": {
+            "code": "CREATE_BUILD_AMBIGUOUS",
+            "message": "Build creation could have succeeded. Check Cloud Portal before trying again."
+          }
+        },
+        "context": {
+          "repository": "synthetic/example",
+          "ref": "refs/heads/main",
+          "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "actor": "synthetic",
+          "workflow": "Build",
+          "job": "build",
+          "runId": "123",
+          "runAttempt": 1,
+          "runUrl": "https://github.com/synthetic/example/actions/runs/123"
+        },
+        "links": [
+          {
+            "label": "View workflow",
+            "url": "https://github.com/synthetic/example/actions/runs/123"
+          }
+        ]
+      }
+    },
+    "calls": [
+      "build-code",
+      "build-status",
+      "build-percentage",
+      "poll-count",
+      "duration-ms",
+      "result-json",
+      "notification-event",
+      "failed"
+    ],
+    "summaries": [
+      "<h2>CCv2 Build</h2><table><tr><td>Status</td><td>internal-error</td></tr><tr><td>Build name</td><td>synthetic-build</td></tr><tr><td>Branch</td><td>feature/test</td></tr><tr><td>Poll count</td><td>0</td></tr><tr><td>Duration (ms)</td><td>0</td></tr><tr><td>Error</td><td>Build creation could have succeeded. Check Cloud Portal before trying again.</td></tr></table>"
+    ]
+  },
+  {
+    "name": "progress",
+    "outputs": {
+      "build-code": "synthetic.1",
+      "build-status": "",
+      "build-percentage": "",
+      "poll-count": "1",
+      "duration-ms": "0",
+      "result-json": {
+        "schemaVersion": 1,
+        "outcome": "internal-error",
+        "pollCount": 1,
+        "durationMs": 0,
+        "timedOut": false,
+        "retryCount": 0,
+        "subscriptionCode": "synthetic-subscription",
+        "buildName": "synthetic-build",
+        "branch": "feature/test",
+        "buildCode": "synthetic.1",
+        "error": {
+          "code": "BUILD_PROGRESS_FAILED",
+          "message": "CCv2 progress request failed (HTTP 403).",
+          "httpStatus": 403
+        }
+      },
+      "notification-event": {
+        "schemaVersion": 1,
+        "eventId": "ckevt_synthetic",
+        "eventType": "ccv2.build.completed",
+        "status": "internal-error",
+        "occurredAt": "2026-01-01T00:00:00.000Z",
+        "source": {
+          "product": "commercekit",
+          "component": "ccv2-build"
+        },
+        "data": {
+          "subscriptionCode": "synthetic-subscription",
+          "buildCode": "synthetic.1",
+          "buildName": "synthetic-build",
+          "branch": "feature/test",
+          "durationMs": 0,
+          "retryCount": 0,
+          "error": {
+            "code": "BUILD_PROGRESS_FAILED",
+            "message": "CCv2 progress request failed (HTTP 403)."
+          }
+        },
+        "context": {
+          "repository": "synthetic/example",
+          "ref": "refs/heads/main",
+          "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "actor": "synthetic",
+          "workflow": "Build",
+          "job": "build",
+          "runId": "123",
+          "runAttempt": 1,
+          "runUrl": "https://github.com/synthetic/example/actions/runs/123"
+        },
+        "links": [
+          {
+            "label": "View workflow",
+            "url": "https://github.com/synthetic/example/actions/runs/123"
+          }
+        ]
+      }
+    },
+    "calls": [
+      "build-code",
+      "build-status",
+      "build-percentage",
+      "poll-count",
+      "duration-ms",
+      "result-json",
+      "notification-event",
+      "failed"
+    ],
+    "summaries": [
+      "<h2>CCv2 Build</h2><table><tr><td>Status</td><td>internal-error</td></tr><tr><td>Build code</td><td>synthetic.1</td></tr><tr><td>Build name</td><td>synthetic-build</td></tr><tr><td>Branch</td><td>feature/test</td></tr><tr><td>Poll count</td><td>1</td></tr><tr><td>Duration (ms)</td><td>0</td></tr><tr><td>Error</td><td>CCv2 progress request failed (HTTP 403).</td></tr></table>"
+    ]
+  },
+  {
+    "name": "timeout",
+    "outputs": {
+      "build-code": "synthetic.1",
+      "build-status": "BUILDING",
+      "build-percentage": "35",
+      "poll-count": "1",
+      "duration-ms": "60000",
+      "result-json": {
+        "schemaVersion": 1,
+        "outcome": "internal-error",
+        "pollCount": 1,
+        "durationMs": 60000,
+        "timedOut": true,
+        "retryCount": 0,
+        "subscriptionCode": "synthetic-subscription",
+        "buildName": "synthetic-build",
+        "branch": "feature/test",
+        "buildCode": "synthetic.1",
+        "buildStatus": "BUILDING",
+        "percentage": 35,
+        "error": {
+          "code": "BUILD_WAIT_TIMEOUT",
+          "message": "The Action stopped waiting. The remote build may still continue."
+        }
+      },
+      "notification-event": {
+        "schemaVersion": 1,
+        "eventId": "ckevt_synthetic",
+        "eventType": "ccv2.build.completed",
+        "status": "internal-error",
+        "occurredAt": "2026-01-01T00:00:00.000Z",
+        "source": {
+          "product": "commercekit",
+          "component": "ccv2-build"
+        },
+        "data": {
+          "subscriptionCode": "synthetic-subscription",
+          "buildCode": "synthetic.1",
+          "buildName": "synthetic-build",
+          "branch": "feature/test",
+          "buildStatus": "BUILDING",
+          "durationMs": 60000,
+          "retryCount": 0,
+          "error": {
+            "code": "BUILD_WAIT_TIMEOUT",
+            "message": "The Action stopped waiting. The remote build may still continue."
+          }
+        },
+        "context": {
+          "repository": "synthetic/example",
+          "ref": "refs/heads/main",
+          "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "actor": "synthetic",
+          "workflow": "Build",
+          "job": "build",
+          "runId": "123",
+          "runAttempt": 1,
+          "runUrl": "https://github.com/synthetic/example/actions/runs/123"
+        },
+        "links": [
+          {
+            "label": "View workflow",
+            "url": "https://github.com/synthetic/example/actions/runs/123"
+          }
+        ]
+      }
+    },
+    "calls": [
+      "build-code",
+      "build-status",
+      "build-percentage",
+      "poll-count",
+      "duration-ms",
+      "result-json",
+      "notification-event",
+      "failed"
+    ],
+    "summaries": [
+      "<h2>CCv2 Build</h2><table><tr><td>Status</td><td>BUILDING</td></tr><tr><td>Build code</td><td>synthetic.1</td></tr><tr><td>Build name</td><td>synthetic-build</td></tr><tr><td>Branch</td><td>feature/test</td></tr><tr><td>Percentage</td><td>35</td></tr><tr><td>Poll count</td><td>1</td></tr><tr><td>Duration (ms)</td><td>60000</td></tr><tr><td>Error</td><td>The Action stopped waiting. The remote build may still continue.</td></tr></table>"
+    ]
+  },
+  {
+    "name": "input",
+    "outputs": {
+      "build-code": "",
+      "build-status": "",
+      "build-percentage": "",
+      "poll-count": "0",
+      "duration-ms": "0",
+      "result-json": {
+        "schemaVersion": 1,
+        "outcome": "internal-error",
+        "pollCount": 0,
+        "durationMs": 0,
+        "timedOut": false,
+        "retryCount": 0,
+        "error": {
+          "code": "INVALID_INPUT",
+          "message": "Invalid branch input."
+        }
+      },
+      "notification-event": {
+        "schemaVersion": 1,
+        "eventId": "ckevt_synthetic",
+        "eventType": "ccv2.build.completed",
+        "status": "internal-error",
+        "occurredAt": "2026-01-01T00:00:00.000Z",
+        "source": {
+          "product": "commercekit",
+          "component": "ccv2-build"
+        },
+        "data": {
+          "durationMs": 0,
+          "retryCount": 0,
+          "error": {
+            "code": "INVALID_INPUT",
+            "message": "Invalid branch input."
+          }
+        },
+        "context": {
+          "repository": "synthetic/example",
+          "ref": "refs/heads/main",
+          "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "actor": "synthetic",
+          "workflow": "Build",
+          "job": "build",
+          "runId": "123",
+          "runAttempt": 1,
+          "runUrl": "https://github.com/synthetic/example/actions/runs/123"
+        },
+        "links": [
+          {
+            "label": "View workflow",
+            "url": "https://github.com/synthetic/example/actions/runs/123"
+          }
+        ]
+      }
+    },
+    "calls": [
+      "build-code",
+      "build-status",
+      "build-percentage",
+      "poll-count",
+      "duration-ms",
+      "result-json",
+      "notification-event",
+      "failed"
+    ],
+    "summaries": [
+      "<h2>CCv2 Build</h2><table><tr><td>Status</td><td>internal-error</td></tr><tr><td>Poll count</td><td>0</td></tr><tr><td>Duration (ms)</td><td>0</td></tr><tr><td>Error</td><td>Invalid branch input.</td></tr></table>"
+    ]
+  },
+  {
+    "name": "retry",
+    "outputs": {
+      "build-code": "synthetic.1",
+      "build-status": "SUCCESS",
+      "build-percentage": "",
+      "poll-count": "2",
+      "duration-ms": "2000",
+      "result-json": {
+        "schemaVersion": 1,
+        "outcome": "success",
+        "pollCount": 2,
+        "durationMs": 2000,
+        "timedOut": false,
+        "retryCount": 1,
+        "subscriptionCode": "synthetic-subscription",
+        "buildName": "synthetic-build",
+        "branch": "feature/test",
+        "buildCode": "synthetic.1",
+        "buildStatus": "SUCCESS"
+      },
+      "notification-event": {
+        "schemaVersion": 1,
+        "eventId": "ckevt_synthetic",
+        "eventType": "ccv2.build.completed",
+        "status": "success",
+        "occurredAt": "2026-01-01T00:00:00.000Z",
+        "source": {
+          "product": "commercekit",
+          "component": "ccv2-build"
+        },
+        "data": {
+          "subscriptionCode": "synthetic-subscription",
+          "buildCode": "synthetic.1",
+          "buildName": "synthetic-build",
+          "branch": "feature/test",
+          "buildStatus": "SUCCESS",
+          "durationMs": 2000,
+          "retryCount": 1
+        },
+        "context": {
+          "repository": "synthetic/example",
+          "ref": "refs/heads/main",
+          "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "actor": "synthetic",
+          "workflow": "Build",
+          "job": "build",
+          "runId": "123",
+          "runAttempt": 1,
+          "runUrl": "https://github.com/synthetic/example/actions/runs/123"
+        },
+        "links": [
+          {
+            "label": "View workflow",
+            "url": "https://github.com/synthetic/example/actions/runs/123"
+          }
+        ]
+      }
+    },
+    "calls": [
+      "build-code",
+      "build-status",
+      "build-percentage",
+      "poll-count",
+      "duration-ms",
+      "result-json",
+      "notification-event"
+    ],
+    "summaries": [
+      "<h2>CCv2 Build</h2><table><tr><td>Status</td><td>SUCCESS</td></tr><tr><td>Build code</td><td>synthetic.1</td></tr><tr><td>Build name</td><td>synthetic-build</td></tr><tr><td>Branch</td><td>feature/test</td></tr><tr><td>Poll count</td><td>2</td></tr><tr><td>Duration (ms)</td><td>2000</td></tr></table>"
+    ]
+  },
+  {
+    "name": "refresh",
+    "outputs": {
+      "build-code": "synthetic.1",
+      "build-status": "SUCCESS",
+      "build-percentage": "",
+      "poll-count": "2",
+      "duration-ms": "0",
+      "result-json": {
+        "schemaVersion": 1,
+        "outcome": "success",
+        "pollCount": 2,
+        "durationMs": 0,
+        "timedOut": false,
+        "retryCount": 1,
+        "subscriptionCode": "synthetic-subscription",
+        "buildName": "synthetic-build",
+        "branch": "feature/test",
+        "buildCode": "synthetic.1",
+        "buildStatus": "SUCCESS"
+      },
+      "notification-event": {
+        "schemaVersion": 1,
+        "eventId": "ckevt_synthetic",
+        "eventType": "ccv2.build.completed",
+        "status": "success",
+        "occurredAt": "2026-01-01T00:00:00.000Z",
+        "source": {
+          "product": "commercekit",
+          "component": "ccv2-build"
+        },
+        "data": {
+          "subscriptionCode": "synthetic-subscription",
+          "buildCode": "synthetic.1",
+          "buildName": "synthetic-build",
+          "branch": "feature/test",
+          "buildStatus": "SUCCESS",
+          "durationMs": 0,
+          "retryCount": 1
+        },
+        "context": {
+          "repository": "synthetic/example",
+          "ref": "refs/heads/main",
+          "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "actor": "synthetic",
+          "workflow": "Build",
+          "job": "build",
+          "runId": "123",
+          "runAttempt": 1,
+          "runUrl": "https://github.com/synthetic/example/actions/runs/123"
+        },
+        "links": [
+          {
+            "label": "View workflow",
+            "url": "https://github.com/synthetic/example/actions/runs/123"
+          }
+        ]
+      }
+    },
+    "calls": [
+      "build-code",
+      "build-status",
+      "build-percentage",
+      "poll-count",
+      "duration-ms",
+      "result-json",
+      "notification-event"
+    ],
+    "summaries": [
+      "<h2>CCv2 Build</h2><table><tr><td>Status</td><td>SUCCESS</td></tr><tr><td>Build code</td><td>synthetic.1</td></tr><tr><td>Build name</td><td>synthetic-build</td></tr><tr><td>Branch</td><td>feature/test</td></tr><tr><td>Poll count</td><td>2</td></tr><tr><td>Duration (ms)</td><td>0</td></tr></table>"
+    ]
+  },
+  {
+    "name": "problem",
+    "outputs": {
+      "build-code": "",
+      "build-status": "",
+      "build-percentage": "",
+      "poll-count": "0",
+      "duration-ms": "0",
+      "result-json": {
+        "schemaVersion": 1,
+        "outcome": "internal-error",
+        "pollCount": 0,
+        "durationMs": 0,
+        "timedOut": false,
+        "retryCount": 0,
+        "subscriptionCode": "synthetic-subscription",
+        "buildName": "synthetic-build",
+        "branch": "feature/test",
+        "error": {
+          "code": "CREATE_BUILD_FAILED",
+          "message": "CCv2 build creation failed (HTTP 409). Synthetic problem: Safe detail",
+          "httpStatus": 409
+        }
+      },
+      "notification-event": {
+        "schemaVersion": 1,
+        "eventId": "ckevt_synthetic",
+        "eventType": "ccv2.build.completed",
+        "status": "internal-error",
+        "occurredAt": "2026-01-01T00:00:00.000Z",
+        "source": {
+          "product": "commercekit",
+          "component": "ccv2-build"
+        },
+        "data": {
+          "subscriptionCode": "synthetic-subscription",
+          "buildName": "synthetic-build",
+          "branch": "feature/test",
+          "durationMs": 0,
+          "retryCount": 0,
+          "error": {
+            "code": "CREATE_BUILD_FAILED",
+            "message": "CCv2 build creation failed (HTTP 409). Synthetic problem: Safe detail"
+          }
+        },
+        "context": {
+          "repository": "synthetic/example",
+          "ref": "refs/heads/main",
+          "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "actor": "synthetic",
+          "workflow": "Build",
+          "job": "build",
+          "runId": "123",
+          "runAttempt": 1,
+          "runUrl": "https://github.com/synthetic/example/actions/runs/123"
+        },
+        "links": [
+          {
+            "label": "View workflow",
+            "url": "https://github.com/synthetic/example/actions/runs/123"
+          }
+        ]
+      }
+    },
+    "calls": [
+      "build-code",
+      "build-status",
+      "build-percentage",
+      "poll-count",
+      "duration-ms",
+      "result-json",
+      "notification-event",
+      "failed"
+    ],
+    "summaries": [
+      "<h2>CCv2 Build</h2><table><tr><td>Status</td><td>internal-error</td></tr><tr><td>Build name</td><td>synthetic-build</td></tr><tr><td>Branch</td><td>feature/test</td></tr><tr><td>Poll count</td><td>0</td></tr><tr><td>Duration (ms)</td><td>0</td></tr><tr><td>Error</td><td>CCv2 build creation failed (HTTP 409). Synthetic problem: Safe detail</td></tr></table>"
+    ]
+  },
+  {
+    "name": "unexpected",
+    "outputs": {
+      "build-code": "",
+      "build-status": "",
+      "build-percentage": "",
+      "poll-count": "0",
+      "duration-ms": "0",
+      "result-json": {
+        "schemaVersion": 1,
+        "outcome": "internal-error",
+        "pollCount": 0,
+        "durationMs": 0,
+        "timedOut": false,
+        "retryCount": 0,
+        "error": {
+          "code": "INTERNAL_ERROR",
+          "message": "The Action encountered an internal error."
+        }
+      },
+      "notification-event": {
+        "schemaVersion": 1,
+        "eventId": "ckevt_synthetic",
+        "eventType": "ccv2.build.completed",
+        "status": "internal-error",
+        "occurredAt": "2026-01-01T00:00:00.000Z",
+        "source": {
+          "product": "commercekit",
+          "component": "ccv2-build"
+        },
+        "data": {
+          "durationMs": 0,
+          "retryCount": 0,
+          "error": {
+            "code": "INTERNAL_ERROR",
+            "message": "The Action encountered an internal error."
+          }
+        },
+        "context": {
+          "repository": "synthetic/example",
+          "ref": "refs/heads/main",
+          "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "actor": "synthetic",
+          "workflow": "Build",
+          "job": "build",
+          "runId": "123",
+          "runAttempt": 1,
+          "runUrl": "https://github.com/synthetic/example/actions/runs/123"
+        },
+        "links": [
+          {
+            "label": "View workflow",
+            "url": "https://github.com/synthetic/example/actions/runs/123"
+          }
+        ]
+      }
+    },
+    "calls": [
+      "build-code",
+      "build-status",
+      "build-percentage",
+      "poll-count",
+      "duration-ms",
+      "result-json",
+      "notification-event",
+      "failed"
+    ],
+    "summaries": [
+      "<h2>CCv2 Build</h2><table><tr><td>Status</td><td>internal-error</td></tr><tr><td>Poll count</td><td>0</td></tr><tr><td>Duration (ms)</td><td>0</td></tr><tr><td>Error</td><td>The Action encountered an internal error.</td></tr></table>"
+    ]
+  },
+  {
+    "name": "cancelled",
+    "outputs": {
+      "build-code": "",
+      "build-status": "",
+      "build-percentage": "",
+      "poll-count": "0",
+      "duration-ms": "0",
+      "result-json": {
+        "schemaVersion": 1,
+        "outcome": "internal-error",
+        "pollCount": 0,
+        "durationMs": 0,
+        "timedOut": false,
+        "retryCount": 0,
+        "subscriptionCode": "synthetic-subscription",
+        "buildName": "synthetic-build",
+        "branch": "feature/test",
+        "error": {
+          "code": "ACTION_CANCELLED",
+          "message": "The Action was interrupted. The remote build may still continue."
+        }
+      },
+      "notification-event": {
+        "schemaVersion": 1,
+        "eventId": "ckevt_synthetic",
+        "eventType": "ccv2.build.completed",
+        "status": "internal-error",
+        "occurredAt": "2026-01-01T00:00:00.000Z",
+        "source": {
+          "product": "commercekit",
+          "component": "ccv2-build"
+        },
+        "data": {
+          "subscriptionCode": "synthetic-subscription",
+          "buildName": "synthetic-build",
+          "branch": "feature/test",
+          "durationMs": 0,
+          "retryCount": 0,
+          "error": {
+            "code": "ACTION_CANCELLED",
+            "message": "The Action was interrupted. The remote build may still continue."
+          }
+        },
+        "context": {
+          "repository": "synthetic/example",
+          "ref": "refs/heads/main",
+          "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "actor": "synthetic",
+          "workflow": "Build",
+          "job": "build",
+          "runId": "123",
+          "runAttempt": 1,
+          "runUrl": "https://github.com/synthetic/example/actions/runs/123"
+        },
+        "links": [
+          {
+            "label": "View workflow",
+            "url": "https://github.com/synthetic/example/actions/runs/123"
+          }
+        ]
+      }
+    },
+    "calls": [
+      "build-code",
+      "build-status",
+      "build-percentage",
+      "poll-count",
+      "duration-ms",
+      "result-json",
+      "notification-event",
+      "failed"
+    ],
+    "summaries": [
+      "<h2>CCv2 Build</h2><table><tr><td>Status</td><td>internal-error</td></tr><tr><td>Build name</td><td>synthetic-build</td></tr><tr><td>Branch</td><td>feature/test</td></tr><tr><td>Poll count</td><td>0</td></tr><tr><td>Duration (ms)</td><td>0</td></tr><tr><td>Error</td><td>The Action was interrupted. The remote build may still continue.</td></tr></table>"
+    ]
+  }
+]

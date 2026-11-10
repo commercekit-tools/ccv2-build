@@ -7,7 +7,7 @@ it("pins all external Actions and forbids privileged triggers, artifacts, and re
     for (const [, ref] of s.matchAll(/uses:\s+(\S+)/g))
       if (ref !== "./") expect(ref).toMatch(/@[a-f0-9]{40}$/);
     expect(s).not.toMatch(
-      /pull_request_target|upload-artifact|secrets\.|git tag|gh release/,
+      /pull_request_target|upload-artifact|git tag|gh release/,
     );
     expect(s).toContain("contents: read");
     expect(s).toContain("timeout-minutes:");
@@ -31,7 +31,7 @@ it("limits Sandbox mutations to manual constrained workflow", () => {
 });
 it("CI is offline for contracts and never invokes Sandbox scripts", () => {
   const s = read(".github/workflows/ci.yml");
-  expect(s).not.toMatch(/sandbox|oauth|secrets\./);
+  expect(s).not.toMatch(/sandbox|oauth/);
   expect(s).toContain("pnpm quality");
   const p = JSON.parse(read("package.json"));
   expect(p.scripts.quality).not.toContain("update");
@@ -65,4 +65,25 @@ it("metadata contains exactly approved inputs and outputs and node24", () => {
     "notification-event",
   ]);
   expect(s).toContain("using: node24");
+});
+
+it("limits GitHub Packages credentials to installation steps", () => {
+  for (const file of ["ci.yml", "sandbox-smoke.yml"]) {
+    const s = read(".github/workflows/" + file);
+    expect(s).toContain("packages: read");
+    expect(s).not.toContain("packages: write");
+    const installations = [
+      ...s.matchAll(
+        /- run: pnpm install --frozen-lockfile\n {8}env:\n {10}NODE_AUTH_TOKEN: \$\{\{ secrets.GITHUB_TOKEN \}\}/g,
+      ),
+    ];
+    expect(installations).toHaveLength(file === "ci.yml" ? 2 : 1);
+    expect([...s.matchAll(/secrets\./g)]).toHaveLength(installations.length);
+    expect([
+      ...s.matchAll(/registry-url: https:\/\/npm.pkg.github.com/g),
+    ]).toHaveLength(installations.length);
+    expect([...s.matchAll(/scope: "@commercekit-tools"/g)]).toHaveLength(
+      installations.length,
+    );
+  }
 });
