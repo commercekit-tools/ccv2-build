@@ -389,3 +389,32 @@ it("preserves exhausted progress HTTP status and rejects oversized success", asy
   });
   expect(large.fetcher).toHaveBeenCalledTimes(2);
 });
+it("normalizes unexpected adapter errors without serializing them", async () => {
+  const h = harness([]);
+  vi.spyOn(h.http.client, "request").mockRejectedValue(
+    new Error("FAKE_INTERNAL_SECRET"),
+  );
+  await expect(h.api.create()).rejects.toMatchObject({
+    code: "INTERNAL_ERROR",
+    message: "The Action encountered an internal error.",
+  });
+});
+it("aborts pending progress and does not issue another request", async () => {
+  const h = harness([token]);
+  await h.tokens.get();
+  const { BuildTransport } = await import("../src/transport.js");
+  const { BuildApi } = await import("../src/api.js");
+  const controller = new AbortController();
+  controller.abort();
+  const transport = new BuildTransport(
+    inputs(),
+    h.rt,
+    controller.signal,
+    h.safe,
+  );
+  const api = new BuildApi(inputs(), transport, h.safe);
+  await expect(api.progress("synthetic.1")).rejects.toMatchObject({
+    code: "REQUEST_FAILED",
+  });
+  expect(h.fetcher).toHaveBeenCalledTimes(1);
+});
