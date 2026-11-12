@@ -1,6 +1,6 @@
 import { vi } from "vitest";
-import { Http, type Runtime } from "../src/http.js";
-import { TokenManager } from "../src/auth.js";
+import type { Runtime } from "../src/runtime.js";
+import { BuildTransport } from "../src/transport.js";
 import { BuildApi } from "../src/api.js";
 import { Sanitizer } from "../src/security.js";
 import { inputs } from "./fixtures.js";
@@ -20,7 +20,11 @@ export function harness(items: (object | Error)[]) {
     });
   });
   const rt: Runtime = {
-    fetch: fetcher as typeof fetch,
+    fetch: (url, init) =>
+      fetcher(String(url), {
+        ...init,
+        headers: Object.fromEntries(new Headers(init?.headers)),
+      }),
     now: () => time,
     sleep: vi.fn(async (ms) => {
       time += ms;
@@ -28,9 +32,19 @@ export function harness(items: (object | Error)[]) {
     random: () => 0,
   };
   const safe = new Sanitizer(vi.fn());
-  const http = new Http(rt, new AbortController().signal);
-  const tokens = new TokenManager(inputs(), http, safe);
-  const api = new BuildApi(inputs(), http, tokens, safe);
+  const http = new BuildTransport(
+    inputs(),
+    rt,
+    new AbortController().signal,
+    safe,
+  );
+  const tokens = {
+    get: (force = false) => {
+      if (force) http.tokens.invalidate();
+      return http.authenticate();
+    },
+  };
+  const api = new BuildApi(inputs(), http, safe);
   return {
     rt,
     safe,

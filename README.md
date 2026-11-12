@@ -84,7 +84,7 @@ All seven outputs are strings and are written before handled failure is reported
 
 `result-json` contains `schemaVersion`, `outcome`, `pollCount`, `retryCount`, `durationMs`, and `timedOut`. Known optional fields are `subscriptionCode`, `applicationCode`, `buildCode`, `buildName`, `branch`, `buildStatus`, `percentage`, `numberOfTasks`, `startedTaskCount`, and `error` (`code`, `message`, optional `httpStatus`). Each JSON output is capped at 16 KiB. There are no raw task payloads, headers, logs, or raw API responses.
 
-The notification carries only supported build fields, safe error information, and approved GitHub context. `retryCount` counts actual extra HTTP attempts, including an authorization refresh replay; it is not the poll count. The workflow run link is included when safely constructible. No Cloud Portal UI link is guessed. The [vendored contract](contracts/README.md) is validated at runtime and in tests.
+The notification carries only supported build fields, safe error information, and approved GitHub context. `retryCount` counts actual extra HTTP attempts, including an authorization refresh replay; it is not the poll count. The workflow run link is included when safely constructible. No Cloud Portal UI link is guessed. The [shared contract](contracts/README.md) is validated at runtime and in tests.
 
 ## Lifecycle and failure behavior
 
@@ -103,6 +103,12 @@ The notification carries only supported build fields, safe error information, an
 Each request has a 30-second timeout and a 256 KiB response limit. Tokens remain memory-only, refresh before expiry (up to 60 seconds early, 10% for short-lived tokens), and are reused until an explicit 401 when expiry is absent. Token requests and progress GETs make at most three transient attempts, with exponential backoff, jitter, and Retry-After. Each Management operation permits one explicit 401 refresh replay. Retries remain subject to the overall timeout.
 
 Create-build POST is **not** automatically retried after timeout, network ambiguity, 5xx, or 429. An explicit 401 permits one token refresh and replay. `CREATE_BUILD_AMBIGUOUS` means check Cloud Portal before starting another build to avoid duplicates. API errors retain HTTP status and only sanitized, bounded problem title/detail. See [security](SECURITY.md).
+
+## Shared dependencies
+
+`@commercekit-tools/notification-contract@0.0.2` and `@commercekit-tools/ccv2-client@0.0.2` are pinned exactly and bundled into `dist/index.js`. Workflow consumers do not install these packages, authenticate to GitHub Packages, or grant `packages: read` to run the bundled Action. Build endpoint validation, polling, deadlines, status mapping, result JSON, outputs, and summaries remain owned by this Action. See the [migration inventory and compatibility checks](docs/shared-packages.md).
+
+Maintainers and CI need GitHub Packages read access for dependency installation; see [CONTRIBUTING.md](CONTRIBUTING.md). Package upgrades require compatibility review and a rebuilt bundle. Publishing a shared package does not release this Action.
 
 ## Development and Sandbox verification
 

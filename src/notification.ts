@@ -1,81 +1,32 @@
-import { randomUUID } from "node:crypto";
-import { Ajv2020 } from "ajv/dist/2020.js";
-import { default as formats } from "ajv-formats";
-import schema from "../contracts/notification-event-v1.schema.json" with { type: "json" };
+import {
+  createBuildEvent,
+  extractSafeGitHubContext,
+} from "@commercekit-tools/notification-contract";
 import type { Result } from "./result.js";
-import { httpsUrl, controls } from "./inputs.js";
+import { controls } from "./inputs.js";
 import type { Sanitizer } from "./security.js";
-const ajv = new Ajv2020({ strict: false });
-(formats as unknown as (a: Ajv2020) => void)(ajv);
-export const validateEvent = ajv.compile(schema);
+
 export function context(env: NodeJS.ProcessEnv, safe: Sanitizer) {
-  const ctx: Record<string, string | number> = {};
-  for (const [name, key, max] of [
-    ["repository", "GITHUB_REPOSITORY", 200],
-    ["ref", "GITHUB_REF", 300],
-    ["commit", "GITHUB_SHA", 128],
-    ["actor", "GITHUB_ACTOR", 128],
-    ["workflow", "GITHUB_WORKFLOW", 200],
-    ["job", "GITHUB_JOB", 200],
-    ["runId", "GITHUB_RUN_ID", 64],
-  ] as const) {
-    const v = env[key];
-    if (v && !controls.test(v) && v.length <= max && !safe.contains(v))
-      ctx[name] = v;
-  }
-  const attempt = Number(env.GITHUB_RUN_ATTEMPT);
-  if (Number.isSafeInteger(attempt) && attempt >= 1) ctx.runAttempt = attempt;
-  try {
-    const server = httpsUrl(env.GITHUB_SERVER_URL ?? "https://github.com");
-    const repo = ctx.repository;
-    const id = ctx.runId;
-    if (
-      typeof repo === "string" &&
-      /^[\w.-]+\/[\w.-]+$/.test(repo) &&
-      typeof id === "string" &&
-      /^\d+$/.test(id)
-    ) {
-      const url = new URL(
-        `${repo}/actions/runs/${id}`,
-        server.href.replace(/\/?$/, "/"),
-      ).href;
-      if (url.length <= 2048 && !safe.contains(url)) ctx.runUrl = url;
-    }
-  } catch {
-    /* Omit unsafe or unavailable GitHub URL. */
-  }
+  // Keep Build's exact-secret/control-character exclusion before shared allowlisted extraction.
+  const filtered = Object.fromEntries(
+    Object.entries(env).filter(
+      ([, value]) =>
+        value !== undefined && !controls.test(value) && !safe.contains(value),
+    ),
+  );
+  const ctx = extractSafeGitHubContext(filtered);
+  if (ctx.runUrl && safe.contains(ctx.runUrl)) delete ctx.runUrl;
   return ctx;
 }
 export function event(result: Result, env: NodeJS.ProcessEnv, safe: Sanitizer) {
-  const data: Record<string, unknown> = {};
-  for (const key of [
-    "subscriptionCode",
-    "applicationCode",
-    "buildCode",
-    "buildName",
-    "branch",
-    "buildStatus",
-    "durationMs",
-    "retryCount",
-  ] as const)
-    if (result[key] !== undefined) data[key] = result[key];
-  if (result.error)
-    data.error = { code: result.error.code, message: result.error.message };
   const ctx = context(env, safe);
-  const value = {
-    schemaVersion: 1,
-    eventId: `ckevt_${randomUUID()}`,
-    eventType: "ccv2.build.completed",
+  return createBuildEvent({
     status: result.outcome,
-    occurredAt: new Date().toISOString(),
-    source: { product: "commercekit", component: "ccv2-build" },
-    data,
+    // The shared factory selects only schema-approved build/error fields and sets the Build source.
+    data: result,
     context: ctx,
     ...(ctx.runUrl
       ? { links: [{ label: "View workflow", url: ctx.runUrl }] }
       : {}),
-  };
-  if (!validateEvent(value))
-    throw new Error("Generated notification failed schema validation.");
-  return value;
+  });
 }

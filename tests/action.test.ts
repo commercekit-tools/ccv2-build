@@ -2,7 +2,8 @@ import { it, expect, vi, describe } from "vitest";
 import { run, type Core } from "../src/action.js";
 import { raw } from "./fixtures.js";
 import { harness, token } from "./harness.js";
-import { validateEvent, context, event } from "../src/notification.js";
+import { context, event } from "../src/notification.js";
+import { validateNotificationEvent as validateEvent } from "@commercekit-tools/notification-contract";
 import { Sanitizer } from "../src/security.js";
 import { initialResult } from "../src/result.js";
 export function fakeCore(overrides: Record<string, string> = {}) {
@@ -64,7 +65,7 @@ describe("orchestration, polling, outputs and notification events", () => {
     expect(c.outputs["poll-count"]).toBe("3");
     expect(c.outputs["duration-ms"]).toBe("120000");
     const e = JSON.parse(c.outputs["notification-event"]!);
-    expect(validateEvent(e)).toBe(true);
+    expect(validateEvent(e)).toBeTruthy();
     expect(e.status).toBe(outcome);
     expect(e.data).not.toHaveProperty("pollCount");
     expect(e.context.runUrl).toBe(
@@ -89,9 +90,9 @@ describe("orchestration, polling, outputs and notification events", () => {
       error: { code: "BUILD_WAIT_TIMEOUT" },
       outcome: "internal-error",
     });
-    expect(validateEvent(JSON.parse(c.outputs["notification-event"]!))).toBe(
-      true,
-    );
+    expect(
+      validateEvent(JSON.parse(c.outputs["notification-event"]!)),
+    ).toBeTruthy();
   });
   it("does not fabricate success percentage and suppresses repeated status logs", async () => {
     const h = harness([
@@ -128,9 +129,9 @@ describe("orchestration, polling, outputs and notification events", () => {
     const c = fakeCore();
     const r = await run(c.core, h.rt);
     expect(r.error?.code).toBe(code);
-    expect(validateEvent(JSON.parse(c.outputs["notification-event"]!))).toBe(
-      true,
-    );
+    expect(
+      validateEvent(JSON.parse(c.outputs["notification-event"]!)),
+    ).toBeTruthy();
     expect(c.calls.at(-1)).toBe("failed");
     expect(JSON.stringify(c.outputs)).not.toContain("PRIVATE_RAW_ERROR");
   });
@@ -147,9 +148,9 @@ describe("orchestration, polling, outputs and notification events", () => {
         unexpected ? "INTERNAL_ERROR" : "INVALID_INPUT",
       );
       expect(c.outputs["build-status"]).toBe("");
-      expect(validateEvent(JSON.parse(c.outputs["notification-event"]!))).toBe(
-        true,
-      );
+      expect(
+        validateEvent(JSON.parse(c.outputs["notification-event"]!)),
+      ).toBeTruthy();
       expect(h.fetcher).not.toHaveBeenCalled();
     }
   });
@@ -314,4 +315,77 @@ it("keeps HTTP status in result while emitting only documented event error field
     code: "BUILD_PROGRESS_FAILED",
     message: "Synthetic API error.",
   });
+});
+it("omits workflow links containing a registered secret assembled from separate context fields", () => {
+  const safe = new Sanitizer(() => {});
+  safe.add("synthetic/example/actions");
+  expect(
+    context(
+      { GITHUB_REPOSITORY: "synthetic/example", GITHUB_RUN_ID: "123" },
+      safe,
+    ),
+  ).not.toHaveProperty("runUrl");
+});
+it("masks shared token-manager credentials and encoded values before public output", async () => {
+  const c = fakeCore();
+  const values = [
+    raw["client-id"]!,
+    raw["client-secret"]!,
+    raw.resource!,
+    raw["token-endpoint"]!,
+  ];
+  const h = harness([
+    token,
+    create,
+    {
+      buildStatus: "FAIL",
+      errorMessage:
+        values.map(encodeURIComponent).join(" ") +
+        " Authorization: Bearer " +
+        token.access_token,
+    },
+  ]);
+  await run(c.core, h.rt, {});
+  for (const value of [...values, token.access_token]) {
+    expect(c.core.setSecret).toHaveBeenCalledWith(value);
+    const sinks = JSON.stringify([
+      c.outputs,
+      vi.mocked(c.core.info).mock.calls,
+      vi.mocked(c.core.warning).mock.calls,
+      vi.mocked(c.core.setFailed).mock.calls,
+      vi.mocked(c.core.summary.addRaw).mock.calls,
+    ]);
+    expect(sinks).not.toContain(value);
+    expect(sinks).not.toContain(encodeURIComponent(value));
+  }
+});
+
+it("uses the shared factory allowlist and source without exposing Build-only result fields", () => {
+  const result = {
+    ...initialResult(),
+    buildCode: "synthetic.1",
+    percentage: 35,
+    numberOfTasks: 5,
+    startedTaskCount: 2,
+    pollCount: 3,
+    timedOut: true,
+    error: {
+      code: "BUILD_WAIT_TIMEOUT",
+      message: "Synthetic timeout.",
+      httpStatus: 503,
+    },
+  };
+  const value = event(result, {}, new Sanitizer(() => {}));
+  expect(value.source).toEqual({
+    product: "commercekit",
+    component: "ccv2-build",
+  });
+  expect(value.data).toEqual({
+    buildCode: "synthetic.1",
+    durationMs: 0,
+    retryCount: 0,
+    error: { code: "BUILD_WAIT_TIMEOUT", message: "Synthetic timeout." },
+  });
+  expect(result.error.httpStatus).toBe(503);
+  expect(result.percentage).toBe(35);
 });
