@@ -1,6 +1,6 @@
 # Shared-package migration
 
-This source-de-duplication uses exactly `@commercekit-tools/notification-contract@0.0.2` and `@commercekit-tools/ccv2-client@0.0.2`. The baseline is `ebdc830161cf9122121ddeb137d005f375063997`. Action metadata, lifecycle decisions, and public inputs/outputs are unchanged. No Notify, Deploy, Sandbox, or legacy repository is modified.
+This source-de-duplication uses exactly `@commercekit-tools/notification-contract@0.0.3` and `@commercekit-tools/ccv2-client@0.0.3`. The baseline is `ebdc830161cf9122121ddeb137d005f375063997`. Action metadata, lifecycle decisions, and public inputs/outputs are unchanged. No Notify, Deploy, Sandbox, or legacy repository is modified.
 
 ## Responsibility inventory
 
@@ -8,7 +8,7 @@ This source-de-duplication uses exactly `@commercekit-tools/notification-contrac
 | --------------------------------------------------------------------- | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Vendored schema, provenance, copied license, update script, Ajv setup | REPLACE WITH NOTIFICATION PACKAGE | Removed; use public schema export and validator                                                                                                                                |
 | `src/notification.ts` event envelope, types, context, workflow URL    | MIXED — SPLIT                     | Shared `createBuildEvent`/context extraction; local outcome/result mapping and known-secret exclusions; shared factory selects approved data/error fields and the Build source |
-| `src/security.ts` bounded text/error and exact-secret redaction       | MIXED — SPLIT                     | Shared sanitizers and transport redaction; retain Build's masking registry, markup/JWT disclosure filter, and summary HTML escaping                                            |
+| `src/security.ts` bounded text/error and exact-secret redaction       | MIXED — SPLIT                     | Shared sanitizers and transport redaction; retain Build's masking registry, filter ordering, and summary HTML escaping                                                         |
 | `src/auth.ts` token exchange, cache, proactive refresh                | REPLACE WITH CCV2 PACKAGE         | Removed; `TechnicalUserTokenManager` owns token lifecycle                                                                                                                      |
 | `src/http.ts` timeout, response reading, retries, Retry-After         | REPLACE WITH CCV2 PACKAGE         | Removed; shared client owns transport; monotonic Action runtime injection retained in `src/runtime.ts`                                                                         |
 | `src/inputs.ts` URL parsing                                           | MIXED — SPLIT                     | Shared URL validators; local input constraints and stable INVALID_INPUT translation                                                                                            |
@@ -42,6 +42,12 @@ The duplication audit also replaces credential/runtime type declarations with `T
 The remaining local helpers have no equivalent public API in the pinned packages:
 
 - Poll/retry counting and transport-error translation preserve the existing Action outputs and stable error codes. They do not implement token storage, HTTP reads, retry loops, or 401 replay.
-- Exact-secret registration connects package masking to `core.setSecret`. The markup/JWT filter and HTML summary escaping preserve Build's existing disclosure and rendering policy; generic redaction, bounds, and error text use package primitives.
+- Exact-secret registration connects package masking to `core.setSecret`. The ordering of shared markup/JWT filters and local HTML summary escaping preserves Build's existing disclosure and rendering policy; generic redaction, bounds, and error text use package primitives.
 - GitHub context filtering excludes known secrets and control characters before shared extraction. The shared extractor owns the field allowlist and run URL construction; the Action supplies its existing workflow-link label.
 - Sandbox control requests use the separate control API's `Authorization` bearer model. The CCv2 Management client always sends `x-approuter-authorization`, so it is not a compatible replacement for these test-harness requests. No live Sandbox request is needed for this audit.
+
+## Shared primitives in 0.0.3
+
+CCv2 path-segment validation/encoding now delegates to `encodeCcv2PathSegment`. The Action keeps input diagnostics and translates `INVALID_PATH_ENCODING` to its existing malformed-Unicode failure classification. Markup filtering and JWT-shaped token redaction delegate to `stripAngleBracketText` and `redactJwtLikeTokens` at their original positions in the sanitization pipeline. The new JWT scanner removes the copied regex's quadratic behavior on repeated prefixes. No provider rendering, masking registration, HTML summary escaping, endpoint validation or lifecycle logic moves into the package.
+
+The frozen integration corpus compares 25 text cases and 29 identifier cases with the pre-extraction Action. It includes the long-markup/truncation behavior that differs between Build and Deploy. Action metadata and existing notification-event fixtures remain unchanged.
