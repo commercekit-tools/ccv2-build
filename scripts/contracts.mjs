@@ -8,8 +8,8 @@ for (const name of ["notification-contract", "ccv2-client"]) {
   const { default: pkg } = await import(id + "/package.json", {
     with: { type: "json" },
   });
-  assert.equal(pkg.version, "0.0.2");
-  assert.equal(root.dependencies[id], "0.0.2");
+  assert.equal(pkg.version, "0.0.3");
+  assert.equal(root.dependencies[id], "0.0.3");
 }
 assert.equal(schema.properties.schemaVersion.const, 1);
 assert(!existsSync("contracts/notification-event-v1.schema.json"));

@@ -1,6 +1,6 @@
 # NotificationEvent contract
 
-The Action uses the public exports of `@commercekit-tools/notification-contract@0.0.2`, published from the MIT-licensed [CommerceKit Action Kit](https://github.com/commercekit-tools/action-kit). The package owns NotificationEvent v1 types, schema, validator, event factory, safe context/links, and generic text sanitization. No schema is vendored locally and no runtime dependency on the Notify Action exists.
+The Action uses the public exports of `@commercekit-tools/notification-contract@0.0.3`, published from the MIT-licensed [CommerceKit Action Kit](https://github.com/commercekit-tools/action-kit). The package owns NotificationEvent v1 types, schema, validator, event factory, safe context/links, and generic text sanitization. No schema is vendored locally and no runtime dependency on the Notify Action exists.
 
 `pnpm contracts:check` imports `@commercekit-tools/notification-contract/schema`, checks schemaVersion 1 and exact installed/declared versions of both shared packages, verifies the local duplicate is absent, validates every pre-migration fixture, and executes all 16 compatibility scenarios against the current Action. Checks are offline after dependency installation. Event creation validates at runtime through `createBuildEvent` and `validateNotificationEvent` inside the package. Sandbox assertions use the same public validator.
 

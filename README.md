@@ -106,7 +106,7 @@ Create-build POST is **not** automatically retried after timeout, network ambigu
 
 ## Shared dependencies
 
-`@commercekit-tools/notification-contract@0.0.2` and `@commercekit-tools/ccv2-client@0.0.2` are pinned exactly and bundled into `dist/index.js`. Workflow consumers do not install these packages, authenticate to GitHub Packages, or grant `packages: read` to run the bundled Action. Build endpoint validation, polling, deadlines, status mapping, result JSON, outputs, and summaries remain owned by this Action. See the [migration inventory and compatibility checks](docs/shared-packages.md).
+`@commercekit-tools/notification-contract@0.0.3` and `@commercekit-tools/ccv2-client@0.0.3` are pinned exactly and bundled into `dist/index.js`. Workflow consumers do not install these packages, authenticate to GitHub Packages, or grant `packages: read` to run the bundled Action. Build endpoint validation, polling, deadlines, status mapping, result JSON, outputs, and summaries remain owned by this Action. See the [migration inventory and compatibility checks](docs/shared-packages.md).
 
 Maintainers and CI need GitHub Packages read access for dependency installation; see [CONTRIBUTING.md](CONTRIBUTING.md). Package upgrades require compatibility review and a rebuilt bundle. Publishing a shared package does not release this Action.
 
