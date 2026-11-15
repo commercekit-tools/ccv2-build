@@ -1,31 +1,12 @@
 import { it, expect, vi, describe } from "vitest";
-import { run, type Core } from "../src/action.js";
+import { run } from "../src/action.js";
 import { raw } from "./fixtures.js";
 import { harness, token } from "./harness.js";
 import { context, event } from "../src/notification.js";
 import { validateNotificationEvent as validateEvent } from "@commercekit-tools/notification-contract";
 import { Sanitizer } from "../src/security.js";
 import { initialResult } from "../src/result.js";
-export function fakeCore(overrides: Record<string, string> = {}) {
-  const outputs: Record<string, string> = {};
-  const calls: string[] = [];
-  const summary = { addRaw: vi.fn(), write: vi.fn(async () => {}) };
-  const core = {
-    getInput: vi.fn((n: string) => overrides[n] ?? raw[n] ?? ""),
-    setSecret: vi.fn(),
-    setOutput: vi.fn((k: string, v: string) => {
-      calls.push(k);
-      outputs[k] = v;
-    }),
-    setFailed: vi.fn(() => {
-      calls.push("failed");
-    }),
-    info: vi.fn(),
-    warning: vi.fn(),
-    summary,
-  } as unknown as Core;
-  return { core, outputs, calls };
-}
+import { fakeCore } from "./action-core.js";
 const create = { code: "synthetic.1" };
 const env = {
   GITHUB_REPOSITORY: "synthetic/example",
@@ -188,13 +169,17 @@ describe("orchestration, polling, outputs and notification events", () => {
     );
     expect(c.calls.at(-1)).toBe("failed");
   });
-  it("attempts minimal fallback if output publishing throws", async () => {
+  it("preserves a successful build result when an output write fails", async () => {
     const c = fakeCore();
     vi.mocked(c.core.setOutput).mockImplementationOnce(() => {
       throw Error();
     });
     await run(c.core, harness([token, create, { buildStatus: "SUCCESS" }]).rt);
-    expect(c.outputs["notification-event"]).toContain("internal-error");
+    expect(c.outputs["notification-event"]).toContain('"status":"success"');
+    expect(c.outputs["result-json"]).toContain('"outcome":"success"');
+    expect(c.core.setFailed).toHaveBeenCalledWith(
+      "Action result outputs could not be written.",
+    );
     expect(c.calls.at(-1)).toBe("failed");
   });
   it("fails safely if even fallback output cannot be written", async () => {
@@ -204,7 +189,7 @@ describe("orchestration, polling, outputs and notification events", () => {
     });
     await run(c.core, harness([token, create, { buildStatus: "SUCCESS" }]).rt);
     expect(c.core.setFailed).toHaveBeenCalledWith(
-      "The Action could not publish its result.",
+      "Action result outputs could not be written.",
     );
   });
   it("handles runner cancellation without deleting build", async () => {

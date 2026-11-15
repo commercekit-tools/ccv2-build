@@ -16,6 +16,9 @@ export class Sanitizer {
     this.mask(value);
     this.secrets.add(value);
   }
+  knownSecrets(): readonly string[] {
+    return [...this.secrets];
+  }
   text(value: string, max = 1000): string {
     const secrets = [...this.secrets];
     const text = redactJwtLikeTokens(

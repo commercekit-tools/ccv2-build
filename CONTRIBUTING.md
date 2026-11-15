@@ -1,5 +1,11 @@
 # Contributing
 
+The current reporting feature is an unpublished 0.0.6 contract candidate.
+Read [the candidate validation gate](docs/consistent-reporting.md) before running
+normal validation: source requires new public helpers while normal dependency
+files and dist deliberately remain on published 0.0.3. Do not disguise a source
+package as a registry version or commit a machine-local dependency.
+
 Use Node **24.21.0**, pnpm **12.6.0**, and Corepack:
 
 ```sh

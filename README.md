@@ -1,5 +1,13 @@
 # CommerceKit CCv2 Build
 
+> **Unpublished reporting candidate.** The consistent input/notification/job-summary
+> changes require notification-contract 0.0.6, which is not published. Normal
+> registry manifests, lockfile and committed bundle remain on the published
+> 0.0.3 baseline. Registry build/merge readiness is BLOCKED until separately
+> authorized publication, exact repinning and normal bundle regeneration.
+> See [reporting validation](docs/consistent-reporting.md). Inputs, remote-operation
+> policies and failure semantics remain unchanged.
+
 **Status: Initial implementation under development.**
 
 No Action release or Marketplace listing is available yet. Both this Action and CommerceKit Notifications remain unreleased. The examples below describe future usage after coordinated release approval.
@@ -82,7 +90,7 @@ All seven outputs are strings and are written before handled failure is reported
 | `result-json`        | Always on handled completion   | Sanitized schemaVersion 1 result                                  |
 | `notification-event` | Always on handled completion   | Valid NotificationEvent v1 `ccv2.build.completed`                 |
 
-`result-json` contains `schemaVersion`, `outcome`, `pollCount`, `retryCount`, `durationMs`, and `timedOut`. Known optional fields are `subscriptionCode`, `applicationCode`, `buildCode`, `buildName`, `branch`, `buildStatus`, `percentage`, `numberOfTasks`, `startedTaskCount`, and `error` (`code`, `message`, optional `httpStatus`). Each JSON output is capped at 16 KiB. There are no raw task payloads, headers, logs, or raw API responses.
+`result-json` contains `schemaVersion`, `outcome`, `pollCount`, `retryCount`, `durationMs`, and `timedOut`. Known optional fields are `subscriptionCode`, `applicationCode`, `buildCode`, `buildName`, `branch`, `buildStatus`, `percentage`, `numberOfTasks`, `startedTaskCount`, and `error` (`code`, `message`, optional `httpStatus`). The reporting candidate bounds each structured JSON output to 64 KiB, aligned with the shared parser and cleanup; the unchanged published-baseline bundle uses 16 KiB. There are no raw task payloads, headers, logs, or raw API responses.
 
 The notification carries only supported build fields, safe error information, and approved GitHub context. `retryCount` counts actual extra HTTP attempts, including an authorization refresh replay; it is not the poll count. The workflow run link is included when safely constructible. No Cloud Portal UI link is guessed. The [shared contract](contracts/README.md) is validated at runtime and in tests.
 

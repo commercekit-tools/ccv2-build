@@ -7,14 +7,19 @@ import { controls } from "./inputs.js";
 import type { Sanitizer } from "./security.js";
 
 export function context(env: NodeJS.ProcessEnv, safe: Sanitizer) {
-  // Keep Build's exact-secret/control-character exclusion before shared allowlisted extraction.
-  const filtered = Object.fromEntries(
-    Object.entries(env).filter(
-      ([, value]) =>
-        value !== undefined && !controls.test(value) && !safe.contains(value),
-    ),
+  // Read only the package's allowlisted environment values, with Build's stricter policy.
+  const ctx = extractSafeGitHubContext(
+    new Proxy(env, {
+      get(target, key: string) {
+        const value = target[key];
+        return value !== undefined &&
+          !controls.test(value) &&
+          !safe.contains(value)
+          ? value
+          : undefined;
+      },
+    }),
   );
-  const ctx = extractSafeGitHubContext(filtered);
   if (ctx.runUrl && safe.contains(ctx.runUrl)) delete ctx.runUrl;
   return ctx;
 }
