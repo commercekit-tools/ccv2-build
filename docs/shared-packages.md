@@ -1,5 +1,17 @@
 # Shared-package migration
 
+## Current published reporting adoption
+
+The current Action consumes exact registry notification-contract **0.0.6** and
+ccv2-client **0.0.3**. Shared input capture/context, masking, status styles and
+Markdown run-summary rendering are reused alongside the existing event factories,
+validation and context APIs. Normal lockfile and standalone dist are regenerated
+from the registry artifact; no candidate alias or local link is used. See
+[validation and provenance](consistent-reporting.md). The earlier 0.0.3 extraction
+inventory below remains historical evidence; current public pins are those above.
+
+## Historical 0.0.3 extraction
+
 This source-de-duplication uses exactly `@commercekit-tools/notification-contract@0.0.3` and `@commercekit-tools/ccv2-client@0.0.3`. The baseline is `ebdc830161cf9122121ddeb137d005f375063997`. Action metadata, lifecycle decisions, and public inputs/outputs are unchanged. No Notify, Deploy, Sandbox, or legacy repository is modified.
 
 ## Responsibility inventory

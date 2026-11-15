@@ -1,15 +1,15 @@
 # Releasing
 
-## Consistent reporting gate
+## Consistent reporting dependency
 
-**BLOCKED:** this source candidate requires unpublished notification-contract
-0.0.6. Source-tarball integration tests do not establish registry readiness.
-Publication needs separate owner authorization; then verify the exact public
-package, pin a supported exact registry version, regenerate the normal lockfile
-and standalone bundle, and rerun all normal quality/CI/CodeQL checks. Coordinated
-Notify rendering must support the new input context. Existing live validation,
-release and deployment gates remain in force. No Git tag, publication, deployment,
-provider send or real SAP operation is authorized by this reporting change.
+Notification-contract **0.0.6** is published through the owner-authorized
+[package-only run 43678067818](https://github.com/commercekit-tools/action-kit/actions/runs/43678067818).
+This consumer pins the exact registry artifact and bundles it normally with
+ccv2-client 0.0.3 unchanged. Candidate-only validation switches are retired.
+Normal full quality and hosted checks must pass on the current PR head before
+its authorized source merge. See [reporting evidence](docs/consistent-reporting.md).
+All remaining Action-release, provider/live validation and owner gates below
+remain separate. Package publication does not create an Action tag or release.
 
 **UNRELEASED — NO RELEASE UNTIL THE COMPLETE ACTION SUITE IS SANDBOX-VERIFIED.**
 
@@ -32,4 +32,4 @@ Implementation may merge after review. Do not create `v1.0.0`, create or move `v
 
 The manual Sandbox workflow requires owner approval after PR review and local/CI success. The five scenarios passed locally with the same guarded scripts and bundled Action under explicit owner approval on 2026-11-09; see [validation evidence](docs/build-validation.md). GitHub-hosted dispatch was unavailable before the workflow existed on main. Do not infer live smoke authorization from permission to merge. No release workflow is provided here. Future maintainers must separately design and review coordinated version-tag and publication procedures after every gate passes.
 
-The shared-package migration does not satisfy any additional live validation gate and does not authorize release. Both shared dependencies remain exactly pinned at `0.0.3` and included in dist. Before approving a package upgrade, review the public contract, authentication/retry behavior, licenses, offline compatibility fixtures, standalone bundle test, and reproducibility. Existing Sandbox evidence describes the earlier implementation; live Sandbox verification of a migration requires separate owner authorization.
+The shared-package migration does not satisfy any additional live validation gate and does not authorize release. Notification-contract is exactly `0.0.6` and ccv2-client remains exactly `0.0.3`, both included in dist. Before approving a package upgrade, review the public contract, authentication/retry behavior, licenses, offline compatibility fixtures, standalone bundle test, and reproducibility. Existing Sandbox evidence describes the earlier implementation; live Sandbox verification of a migration requires separate owner authorization.
