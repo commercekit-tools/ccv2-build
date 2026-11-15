@@ -8,6 +8,7 @@ import {
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
+import { pathToFileURL } from "node:url";
 import { expect, it } from "vitest";
 import { parseNotificationEventJson } from "@commercekit-tools/notification-contract";
 import { inputDefinitions } from "../src/reporting.js";
@@ -40,18 +41,15 @@ it.each(scenarios)(
       const outputPath = join(dir, "output");
       const summaryPath = join(dir, "summary");
       const requestsPath = join(dir, "requests");
-      const preload = join(dir, "fetch.cjs");
+      const preload = join(dir, "fetch.mjs");
       writeFileSync(outputPath, "");
       writeFileSync(summaryPath, "");
-      writeFileSync(
-        preload,
-        `const fs=require('node:fs');let requests=0;process.once('exit',()=>fs.writeFileSync(${JSON.stringify(requestsPath)},String(requests)));global.fetch=async(url,init)=>{requests++;url=String(url);if(!['https://auth.example.invalid','https://portalapi.commerce.ondemand.com'].includes(new URL(url).origin))throw Error('Unexpected network destination');if(init.redirect!=='error')throw Error('Unsafe redirects');if(url.includes('oauth2'))return Response.json({access_token:'SYNTHETIC_BUNDLE_TOKEN',token_type:'Bearer'});if(init.method==='POST')return Response.json({code:'synthetic.1'},{status:201});return Response.json({buildStatus:${JSON.stringify(status)},percentage:100});};`,
-      );
+      copyFileSync("tests/fixtures/reporting-fetch.mjs", preload);
       copyFileSync("dist/index.js", join(dir, "index.js"));
       copyFileSync("dist/package.json", join(dir, "package.json"));
       const child = spawnSync(
         process.execPath,
-        ["--require", preload, join(dir, "index.js")],
+        ["--import", pathToFileURL(preload).href, join(dir, "index.js")],
         {
           cwd: dir,
           encoding: "utf8",
@@ -62,6 +60,7 @@ it.each(scenarios)(
             GITHUB_TOKEN: "",
             GH_TOKEN: "",
             NODE_PATH: "",
+            COMMERCEKIT_TEST_BUILD_STATUS: status,
             "INPUT_TOKEN-ENDPOINT": "https://auth.example.invalid/oauth2/token",
             "INPUT_CLIENT-ID": "SYNTHETIC_BUNDLE_CLIENT",
             "INPUT_CLIENT-SECRET": "SYNTHETIC_BUNDLE_SECRET",
