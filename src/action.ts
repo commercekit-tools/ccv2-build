@@ -1,12 +1,18 @@
 import type * as core from "@actions/core";
-import { readInputs } from "./inputs.js";
-import { Sanitizer, escapeHtml } from "./security.js";
+import {
+  captureActionInputs,
+  type SafeNotificationError,
+} from "@commercekit-tools/notification-contract";
+import { readInputs, type Inputs } from "./inputs.js";
+import { Sanitizer } from "./security.js";
 import { ActionError, waitTimeout } from "./errors.js";
 import { runtime, type Runtime } from "./runtime.js";
 import { BuildTransport } from "./transport.js";
-import { BuildApi } from "./api.js";
+import { BuildApi, statuses } from "./api.js";
 import { initialResult, type Result } from "./result.js";
 import { event } from "./notification.js";
+import { inputContext, inputDefinitions, summary } from "./reporting.js";
+const maxStructuredOutputBytes = 65536;
 export type Core = Pick<
   typeof core,
   "getInput" | "setSecret" | "setOutput" | "setFailed" | "info" | "warning"
@@ -20,15 +26,20 @@ export async function run(
   const started = rt.now();
   const safe = new Sanitizer((v) => core.setSecret(v));
   let result = initialResult();
+  let captured: Record<string, string> = {};
+  let validated: Inputs | undefined;
   let timer: ReturnType<typeof setTimeout> | undefined;
   let transport: BuildTransport | undefined;
   let api: BuildApi | undefined;
   let activeSignal: AbortSignal | undefined;
   try {
-    const input = readInputs(
-      (n) => core.getInput(n, { trimWhitespace: false }),
-      safe,
+    captured = captureActionInputs(
+      inputDefinitions,
+      (name) => core.getInput(name, { trimWhitespace: false }),
+      (value) => safe.add(value),
     );
+    const input = readInputs((name) => captured[name] ?? "", safe);
+    validated = input;
     Object.assign(result, {
       subscriptionCode: input.subscriptionCode,
       buildName: input.buildName,
@@ -121,29 +132,32 @@ export async function run(
   result.pollCount = api?.pollCount ?? 0;
   result.retryCount = transport?.retryCount ?? 0;
   result.durationMs = Math.max(0, Math.floor(rt.now() - started));
-  // Explicit allowlisted model; sanitize every string before any output or summary.
+  // Sanitize untrusted data without changing locally selected semantic enums.
+  const outcome = result.outcome;
+  const buildStatus =
+    result.buildStatus && statuses.includes(result.buildStatus)
+      ? result.buildStatus
+      : undefined;
   result = JSON.parse(
     JSON.stringify(result, (_key, value: unknown) =>
       typeof value === "string" ? safe.text(value) : value,
     ),
   ) as Result;
+  result.outcome = outcome;
+  if (buildStatus) result.buildStatus = buildStatus;
   try {
-    await emit(core, result, safe, env);
+    Object.assign(result, inputContext(captured, validated, safe));
   } catch {
-    result = {
-      ...initialResult(),
-      durationMs: result.durationMs,
-      error: {
-        code: "INTERNAL_ERROR",
-        message: "The Action could not publish its result.",
-      },
-    };
-    try {
-      await emit(core, result, safe, {});
-    } catch {
-      core.setFailed("The Action could not publish its result.");
-    }
+    core.warning(
+      "The input summary could not be prepared; the Action result is preserved.",
+    );
   }
+  const outputFailure = await emit(core, result, safe, env);
+  if (result.outcome !== "success")
+    core.setFailed(result.error?.message ?? "CCv2 build did not succeed.");
+  else if (outputFailure)
+    core.setFailed("Action result outputs could not be written.");
+  else core.info("Build completed successfully.");
   return result;
 }
 async function emit(
@@ -152,11 +166,25 @@ async function emit(
   safe: Sanitizer,
   env: NodeJS.ProcessEnv,
 ) {
-  const notification = event(result, env, safe);
+  const reportingIssues: SafeNotificationError[] = [];
+  let eventJson: string;
+  try {
+    eventJson = JSON.stringify(event(result, env, safe));
+    if (Buffer.byteLength(eventJson) > maxStructuredOutputBytes)
+      throw Error("Output exceeds limit.");
+  } catch {
+    eventJson = "";
+    reportingIssues.push({
+      code: "notification-unavailable",
+      message:
+        "The notification event could not be prepared; the Action result is preserved.",
+    });
+    core.warning(
+      "The notification event could not be prepared; the Action result is preserved.",
+    );
+  }
   const json = JSON.stringify(result);
-  const eventJson = JSON.stringify(notification);
-  if (Buffer.byteLength(json) > 16384 || Buffer.byteLength(eventJson) > 16384)
-    throw Error("Output exceeds limit.");
+  let outputFailure = false;
   for (const [name, value] of Object.entries({
     "build-code": result.buildCode ?? "",
     "build-status": result.buildStatus ?? "",
@@ -166,35 +194,34 @@ async function emit(
     "duration-ms": String(result.durationMs),
     "result-json": json,
     "notification-event": eventJson,
-  }))
-    core.setOutput(name, value);
-  const rows = [
-    ["Status", result.buildStatus ?? result.outcome],
-    ["Build code", result.buildCode],
-    ["Build name", result.buildName],
-    ["Branch", result.branch],
-    ["Application", result.applicationCode],
-    ["Percentage", result.percentage],
-    ["Poll count", result.pollCount],
-    ["Duration (ms)", result.durationMs],
-    ["Error", result.error?.message],
-  ].filter(([, v]) => v !== undefined);
-  try {
-    core.summary.addRaw(
-      "<h2>CCv2 Build</h2><table>" +
-        rows
-          .map(
-            ([k, v]) =>
-              `<tr><td>${k}</td><td>${escapeHtml(String(v))}</td></tr>`,
-          )
-          .join("") +
-        "</table>",
+  })) {
+    try {
+      const limit =
+        name === "result-json" || name === "notification-event"
+          ? maxStructuredOutputBytes
+          : 16384;
+      if (Buffer.byteLength(value) > limit)
+        throw Error("Output exceeds limit.");
+      core.setOutput(name, value);
+    } catch {
+      outputFailure = true;
+    }
+  }
+  if (outputFailure) {
+    core.warning(
+      "Action result outputs could not be written; the original result is preserved.",
     );
+    reportingIssues.push({
+      code: "outputs-unavailable",
+      message:
+        "Some Action outputs could not be written. Review the available result and run summary.",
+    });
+  }
+  try {
+    core.summary.addRaw(summary(result, safe, env, reportingIssues));
     await core.summary.write();
   } catch {
     core.warning("The step summary could not be written.");
   }
-  if (result.outcome !== "success")
-    core.setFailed(result.error?.message ?? "CCv2 build did not succeed.");
-  else core.info("Build completed successfully.");
+  return outputFailure;
 }

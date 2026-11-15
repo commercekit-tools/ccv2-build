@@ -5,8 +5,9 @@ import { harness, token } from "./harness.js";
 import { raw } from "./fixtures.js";
 import { validateNotificationEvent } from "@commercekit-tools/notification-contract";
 
-// Captured on the pre-migration implementation at ebdc830. Only generated identity/time is normalized.
-it("preserves complete public outputs and validates every completion path", async () => {
+// Preserve immutable pre-migration operation/output semantics. New additive input
+// context and the deliberately replaced summary UI are tested in reporting.test.ts.
+it("preserves legacy domain outputs and failure ordering across every completion path", async () => {
   const create = { code: "synthetic.1" };
   const cases: [string, object[], Record<string, string>?][] = [
     ...["SUCCESS", "FAIL", "DELETED", "UNKNOWN"].map(
@@ -70,7 +71,12 @@ it("preserves complete public outputs and validates every completion path", asyn
     ["unexpected", []],
     ["cancelled", []],
   ];
-  const fixtures = [];
+  const fixtures: {
+    name: string;
+    outputs: unknown;
+    calls: string[];
+    summaries: string[];
+  }[] = [];
   for (const [name, replies, overrides = {}] of cases) {
     const outputs: Record<string, string> = {};
     const calls: string[] = [];
@@ -129,7 +135,27 @@ it("preserves complete public outputs and validates every completion path", asyn
       summaries,
     });
   }
-  expect(JSON.parse(JSON.stringify(fixtures))).toEqual(
-    JSON.parse(readFileSync("tests/fixtures/build-compatibility.json", "utf8")),
+  function legacyProjection(value: typeof fixtures) {
+    return value.map(({ summaries, ...fixture }) => {
+      void summaries;
+      const copy = JSON.parse(JSON.stringify(fixture));
+      for (const key of [
+        "inputs",
+        "inputsValidated",
+        "inputsTruncated",
+        "issues",
+      ]) {
+        delete copy.outputs["result-json"][key];
+        delete copy.outputs["notification-event"].data[key];
+      }
+      return copy;
+    });
+  }
+  expect(legacyProjection(fixtures)).toEqual(
+    legacyProjection(
+      JSON.parse(
+        readFileSync("tests/fixtures/build-compatibility.json", "utf8"),
+      ),
+    ),
   );
 });

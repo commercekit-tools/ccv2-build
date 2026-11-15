@@ -1,5 +1,12 @@
 # CommerceKit CCv2 Build
 
+> **Published reporting dependency:** this unreleased Action now consumes exact
+> notification-contract 0.0.6 from GitHub Packages, with a regenerated registry
+> lockfile and bundled runtime. All input names, safe status details and GitHub
+> run summaries use the shared formatting and masking contract. Normal validation
+> is being recorded in [the reporting report](docs/consistent-reporting.md).
+> Existing input and remote-operation behavior is unchanged.
+
 **Status: Initial implementation under development.**
 
 No Action release or Marketplace listing is available yet. Both this Action and CommerceKit Notifications remain unreleased. The examples below describe future usage after coordinated release approval.
@@ -82,7 +89,7 @@ All seven outputs are strings and are written before handled failure is reported
 | `result-json`        | Always on handled completion   | Sanitized schemaVersion 1 result                                  |
 | `notification-event` | Always on handled completion   | Valid NotificationEvent v1 `ccv2.build.completed`                 |
 
-`result-json` contains `schemaVersion`, `outcome`, `pollCount`, `retryCount`, `durationMs`, and `timedOut`. Known optional fields are `subscriptionCode`, `applicationCode`, `buildCode`, `buildName`, `branch`, `buildStatus`, `percentage`, `numberOfTasks`, `startedTaskCount`, and `error` (`code`, `message`, optional `httpStatus`). Each JSON output is capped at 16 KiB. There are no raw task payloads, headers, logs, or raw API responses.
+`result-json` contains `schemaVersion`, `outcome`, `pollCount`, `retryCount`, `durationMs`, and `timedOut`. Known optional fields are `subscriptionCode`, `applicationCode`, `buildCode`, `buildName`, `branch`, `buildStatus`, `percentage`, `numberOfTasks`, `startedTaskCount`, and `error` (`code`, `message`, optional `httpStatus`). Each structured JSON output is bounded to 64 KiB, aligned with the shared parser and cleanup. There are no raw task payloads, headers, logs, or raw API responses.
 
 The notification carries only supported build fields, safe error information, and approved GitHub context. `retryCount` counts actual extra HTTP attempts, including an authorization refresh replay; it is not the poll count. The workflow run link is included when safely constructible. No Cloud Portal UI link is guessed. The [shared contract](contracts/README.md) is validated at runtime and in tests.
 
@@ -106,7 +113,7 @@ Create-build POST is **not** automatically retried after timeout, network ambigu
 
 ## Shared dependencies
 
-`@commercekit-tools/notification-contract@0.0.3` and `@commercekit-tools/ccv2-client@0.0.3` are pinned exactly and bundled into `dist/index.js`. Workflow consumers do not install these packages, authenticate to GitHub Packages, or grant `packages: read` to run the bundled Action. Build endpoint validation, polling, deadlines, status mapping, result JSON, outputs, and summaries remain owned by this Action. See the [migration inventory and compatibility checks](docs/shared-packages.md).
+`@commercekit-tools/notification-contract@0.0.6` and `@commercekit-tools/ccv2-client@0.0.3` are pinned exactly and bundled into `dist/index.js`. Workflow consumers do not install these packages, authenticate to GitHub Packages, or grant `packages: read` to run the bundled Action. Build endpoint validation, polling, deadlines, status mapping, result JSON, outputs, and summaries remain owned by this Action. See the [migration inventory and compatibility checks](docs/shared-packages.md).
 
 Maintainers and CI need GitHub Packages read access for dependency installation; see [CONTRIBUTING.md](CONTRIBUTING.md). Package upgrades require compatibility review and a rebuilt bundle. Publishing a shared package does not release this Action.
 

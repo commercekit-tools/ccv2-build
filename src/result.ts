@@ -1,9 +1,10 @@
 import type {
   CompletedStatus,
   SafeNotificationError,
+  NotificationInputContext,
 } from "@commercekit-tools/notification-contract";
 import type { BuildStatus } from "./api.js";
-export interface Result {
+export interface Result extends Partial<NotificationInputContext> {
   schemaVersion: 1;
   outcome: CompletedStatus;
   subscriptionCode?: string;
@@ -19,6 +20,7 @@ export interface Result {
   durationMs: number;
   timedOut: boolean;
   retryCount: number;
+  issues?: SafeNotificationError[];
   error?: Required<SafeNotificationError> & { httpStatus?: number };
 }
 export const initialResult = (): Result => ({
